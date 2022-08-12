@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
 
+use App\Mail\WelcomeEmail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class contactController extends Controller
 {
@@ -13,6 +15,6 @@ class contactController extends Controller
         $from_name = $request->name;
         $from_email = $request->email;
         $subject = $request->subject;
-        Mail::to('deli.pizza.bahla@gmail.com')->send(new SendEmail($emailMessage));
+        Mail::to($from_email)->send(new WelcomeEmail());
     }
 }

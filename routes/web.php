@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\contactController;
+use App\Mail\WelcomeEmail;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,3 +29,8 @@ Route::get('/{locale?}', function ($locale = 'en') {
 
 
 Route::post('user/Contact', [contactController::class, 'Contact'])->name('Contact');
+
+
+Route::get('/user/email', function () {
+    return new WelcomeEmail();
+});
