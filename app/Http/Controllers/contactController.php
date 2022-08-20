@@ -21,7 +21,7 @@ class contactController extends Controller
             Mail::to('ojenana11@gmail.com')->send(new WelcomeEmail($data));
             return response()->json(['msg' => 'OK']);
         } catch (Exception $ex) {
-            return response()->json(['msg' => 'no']);
+            return response()->json(['msg' => "$ex"]);
         }
     }
 }
