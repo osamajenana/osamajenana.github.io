@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\WelcomeEmail;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -10,11 +11,17 @@ class contactController extends Controller
 {
     public function Contact(Request $request)
     {
-        // dd('dd');
-        $receiving_email_address = 'ojenana@gmail.com';
-        $from_name = $request->name;
-        $from_email = $request->email;
-        $subject = $request->subject;
-        Mail::to($from_email)->send(new WelcomeEmail());
+        $data = [
+            'subject' => $request->subject,
+            'name' => $request->name,
+            'email' => $request->email,
+            'body' => $request->message
+        ];
+        try {
+            Mail::to('ojenana11@gmail.com')->send(new WelcomeEmail($data));
+            return response()->json(['msg' => 'OK']);
+        } catch (Exception $ex) {
+            return response()->json(['msg' => 'no']);
+        }
     }
 }

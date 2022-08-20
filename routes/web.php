@@ -31,6 +31,13 @@ Route::get('/{locale?}', function ($locale = 'en') {
 Route::post('user/Contact', [contactController::class, 'Contact'])->name('Contact');
 
 
+
 Route::get('/user/email', function () {
-    return new WelcomeEmail();
+    $data = [
+        'subject' => 'sub',
+        'name' => 'name',
+        'email' => 'email',
+        'body' => 'masg'
+    ];
+    return new WelcomeEmail($data);
 });

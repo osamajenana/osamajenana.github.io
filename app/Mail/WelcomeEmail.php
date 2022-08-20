@@ -11,14 +11,15 @@ class WelcomeEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private $date =  [];
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($date)
     {
-        //
+        $this->date = $date;
     }
 
     /**
@@ -28,8 +29,9 @@ class WelcomeEmail extends Mailable
      */
     public function build()
     {
-        return $this
-        ->subject('Welcome | Muscat Apps')
-        ->markdown('emails.welcome_email');
+        return $this->from('support@MuscatApps.com', 'Support Team')
+            ->subject($this->date['subject'])
+            ->markdown('emails.welcome_email')
+            ->with('date', $this->date);
     }
 }
