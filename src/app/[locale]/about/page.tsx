@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PageHeader } from '@/components/layout/PageHeader';
 import { ButtonLink } from '@/components/ui/Button';
+import { StatItem } from '@/components/ui/MetricList';
 import { Reveal } from '@/components/ui/Reveal';
 import { Tag } from '@/components/ui/Tag';
 import { resume } from '@/content/resume';
@@ -44,10 +45,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <p className="text-lg leading-[1.75] text-ink-muted">{resume.profile[locale]}</p>
 
           <dl className="mt-10 grid grid-cols-2 gap-8 border-t border-line pt-8 sm:grid-cols-4">
-            <Stat value={`${owner.yearsExperience}`} label={t('stats.years')} />
-            <Stat value={`${totalProjects}`} label={t('stats.systems')} />
-            <Stat value={`${resume.skills.length}`} label={t('stats.skillAreas')} />
-            <Stat value="2" label={t('stats.languages')} />
+            <StatItem value={owner.yearsExperience} label={t('stats.years')} />
+            <StatItem value={totalProjects} label={t('stats.systems')} />
+            <StatItem value={resume.skills.length} label={t('stats.skillAreas')} />
+            <StatItem value={2} label={t('stats.languages')} />
           </dl>
         </Reveal>
 
@@ -166,14 +167,5 @@ function SectionTitle({ id, children }: { id: string; children: React.ReactNode 
     <h2 id={id} className="mb-8 font-mono text-xs tracking-widest text-ink-subtle uppercase">
       {children}
     </h2>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <dd className="nums text-3xl font-semibold text-ink">{value}</dd>
-      <dt className="mt-1 text-xs leading-snug text-ink-subtle">{label}</dt>
-    </div>
   );
 }

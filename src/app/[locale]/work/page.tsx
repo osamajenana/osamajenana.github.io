@@ -7,6 +7,7 @@ import { ProjectCard } from '@/components/work/ProjectCard';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { getArchive, getWorkGrid } from '@/lib/projects';
+import { cn } from '@/lib/utils';
 
 export async function generateMetadata({
   params,
@@ -46,7 +47,13 @@ export default async function WorkPage({ params }: { params: Promise<{ locale: L
               as="li"
               key={project.slug}
               delay={Math.min(index, 5) * 0.05}
-              className={project.featuredOrder !== undefined ? 'sm:col-span-2' : undefined}
+              className={cn(
+                // Grid items are min-width:auto by default, so the scrollable
+                // architecture diagram inside a card would widen the whole track
+                // instead of scrolling within it.
+                'min-w-0',
+                project.featuredOrder !== undefined && 'sm:col-span-2',
+              )}
             >
               <ProjectCard
                 project={project}

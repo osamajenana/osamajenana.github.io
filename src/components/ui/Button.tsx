@@ -10,7 +10,7 @@ const base =
   'inline-flex items-center justify-center gap-2 rounded-pill font-medium whitespace-nowrap transition-[background-color,border-color,color,transform] duration-200 ease-[var(--ease-out-quart)] active:translate-y-px disabled:pointer-events-none disabled:opacity-50';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand text-white hover:bg-brand-strong',
+  primary: 'bg-brand text-on-brand hover:bg-brand-strong',
   secondary: 'border border-line bg-surface text-ink hover:border-line-strong hover:bg-raised',
   ghost: 'text-ink-muted hover:bg-raised hover:text-ink',
 };

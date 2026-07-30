@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { ArchDiagram } from '@/components/diagrams/ArchDiagram';
 import { getDiagram } from '@/components/diagrams';
+import { MetricList } from '@/components/ui/MetricList';
 import { StatusDot, Tag } from '@/components/ui/Tag';
 import { domainOf, ProjectCover } from '@/components/work/ProjectCover';
 import { pillars as pillarConfig } from '@/content/site';
@@ -70,7 +71,7 @@ export async function ProjectCard({
         // unreadable in a half-width slot.
         featured &&
         diagram && (
-          <div className="mb-6 overflow-hidden rounded-card border border-line bg-raised p-4 sm:mb-7 sm:p-6">
+          <div className="mb-6 min-w-0 overflow-hidden rounded-card border border-line bg-raised p-4 sm:mb-7 sm:p-6">
             <ArchDiagram spec={diagram} locale={locale} hideCaption />
           </div>
         )
@@ -100,14 +101,11 @@ export async function ProjectCard({
       </p>
 
       {visibleMetrics.length > 0 && (
-        <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-5 sm:grid-cols-3">
-          {visibleMetrics.map((metric) => (
-            <div key={metric.label.en}>
-              <dd className="nums text-2xl font-semibold text-ink">{metric.value}</dd>
-              <dt className="mt-0.5 text-xs text-ink-subtle">{metric.label[locale]}</dt>
-            </div>
-          ))}
-        </dl>
+        <MetricList
+          metrics={visibleMetrics.map(({ hint: _hint, ...rest }) => rest)}
+          locale={locale}
+          className="mt-6 grid-cols-2 border-t border-line pt-5 sm:grid-cols-3"
+        />
       )}
 
       <div className="mt-6 flex flex-wrap items-center gap-1.5">
@@ -145,7 +143,7 @@ export async function ProjectCard({
   );
 
   const shell = cn(
-    'group flex h-full flex-col rounded-panel border border-line bg-surface transition-[border-color,transform] duration-300 ease-[var(--ease-out-quart)]',
+    'group flex h-full min-w-0 flex-col rounded-panel border border-line bg-surface transition-[border-color,transform] duration-300 ease-[var(--ease-out-quart)]',
     featured ? 'p-7 sm:p-8' : 'p-6',
     linksToCaseStudy && 'hover:-translate-y-1 hover:border-line-strong',
   );

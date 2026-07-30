@@ -150,7 +150,19 @@ export function ArchDiagram({
   const titleId = `diag-${spec.nodes[0]?.id ?? 'x'}`;
 
   return (
-    <figure className={cn('overflow-x-auto', className)}>
+    <figure
+      className={cn('max-w-full min-w-0 overflow-x-auto', className)}
+      /*
+       * A diagram wider than the viewport scrolls horizontally, which makes this
+       * a scrollable region — so it has to be reachable and scrollable by
+       * keyboard, and it needs a name for the focus announcement. Without the
+       * tabIndex, axe flags it and a keyboard user simply cannot see the right
+       * half of the picture.
+       */
+      tabIndex={0}
+      role="group"
+      aria-label={spec.caption[locale]}
+    >
       <svg
         viewBox={`0 0 ${width} ${height}`}
         role="img"

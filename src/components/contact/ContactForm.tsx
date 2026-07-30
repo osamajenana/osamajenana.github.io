@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 const initialState: ContactState = { status: 'idle' };
 
 const fieldClass =
-  'w-full rounded-card border border-line bg-surface px-4 py-3 text-sm text-ink placeholder:text-ink-subtle transition-colors focus-visible:border-brand';
+  'w-full rounded-card border border-line-strong bg-surface px-4 py-3 text-sm text-ink placeholder:text-ink-subtle transition-colors focus-visible:border-brand';
 
 export function ContactForm() {
   const t = useTranslations('contact');

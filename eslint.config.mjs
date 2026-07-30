@@ -36,6 +36,16 @@ export default tseslint.config(
     files: ['**/*.{jsx,tsx}'],
     rules: {
       ...a11yRecommendedRules,
+      /*
+       * WCAG requires a scrollable region to be keyboard-focusable (axe's
+       * scrollable-region-focusable rule), which means a tabIndex on a container
+       * that is not itself interactive. The rule has no way to know that, so
+       * named regions and groups are permitted to carry one.
+       */
+      'jsx-a11y/no-noninteractive-tabindex': [
+        'error',
+        { tags: [], roles: ['tabpanel', 'region', 'group'], allowExpressionValues: true },
+      ],
       // Next's <Link> renders a real anchor; the rule cannot see through it.
       'jsx-a11y/anchor-is-valid': [
         'error',

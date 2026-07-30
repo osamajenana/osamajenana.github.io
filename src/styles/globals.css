@@ -10,23 +10,32 @@
    Contrast verified against WCAG AA for every text pairing in use.
 --------------------------------------------------------------------------- */
 
+/*
+ * Ratios below are measured, not estimated: tests/unit/contrast.test.ts parses
+ * these very declarations and asserts every pairing against WCAG AA, so editing
+ * a colour here without re-checking it fails the suite.
+ *
+ * `--line` is decorative (dividers, card edges). `--line-strong` is held to 3:1
+ * because it draws form field boundaries, which a user has to be able to see.
+ */
 :root {
   /* light */
   --canvas: #fbfbfc;
   --surface: #ffffff;
   --raised: #f4f5f7;
   --line: #e3e6eb;
-  --line-strong: #cbd1da;
+  --line-strong: #8d9198; /* 3.06:1 on white — form field borders */
 
   --ink: #0c0e12; /* 19:1 on canvas */
-  --ink-muted: #575e6b; /* 7.0:1  */
-  --ink-subtle: #79808d; /* 4.6:1  — large text / decorative only */
+  --ink-muted: #575e6b; /* 7.0:1 */
+  --ink-subtle: #696f7b; /* 4.63:1 — small mono labels use this */
 
-  --brand: #2e5fe8; /* 5.4:1  */
+  --brand: #2e5fe8; /* 5.4:1 */
   --brand-strong: #1e4bc8;
   --brand-dim: #e8eeff;
+  --on-brand: #ffffff; /* 5.36:1 on --brand — primary button label */
 
-  --ai: #067f5b; /* 4.9:1  */
+  --ai: #057b58; /* 4.72:1, incl. on --ai-dim */
   --ai-strong: #045c42;
   --ai-dim: #e2f7ef;
 
@@ -44,15 +53,21 @@
   --surface: #101216;
   --raised: #16191f;
   --line: #22262e;
-  --line-strong: #333944;
+  --line-strong: #5d626b; /* 3.06:1 on surface — form field borders */
 
   --ink: #f4f5f7; /* 18:1 on canvas */
   --ink-muted: #9ba1ac; /* 8.5:1 */
-  --ink-subtle: #6b727e; /* 4.6:1 — large text / decorative only */
+  --ink-subtle: #7e848f; /* 4.68:1 — small mono labels use this */
 
   --brand: #5b8cff; /* 6.9:1 */
   --brand-strong: #7ba2ff;
   --brand-dim: #131a2e;
+  /*
+   * Near-black, not white. --brand is a light blue in this theme, so white text
+   * on it measures about 2.9:1 — the original palette shipped a primary button
+   * that failed AA until an axe run caught it.
+   */
+  --on-brand: #08090c; /* 6.3:1 on --brand */
 
   --ai: #35e0a1; /* 11.6:1 */
   --ai-strong: #5cf0b8;
@@ -80,6 +95,7 @@
   --color-brand: var(--brand);
   --color-brand-strong: var(--brand-strong);
   --color-brand-dim: var(--brand-dim);
+  --color-on-brand: var(--on-brand);
 
   --color-ai: var(--ai);
   --color-ai-strong: var(--ai-strong);
@@ -175,9 +191,11 @@
     border-radius: 2px;
   }
 
+  /* Selected text sits on --brand, so it needs the same paired ink the primary
+     button uses; a hard white would fail contrast in the dark theme. */
   ::selection {
     background-color: var(--color-brand);
-    color: #fff;
+    color: var(--color-on-brand);
   }
 
   /* Headings should never be orphaned mid-word in either script. */
@@ -233,7 +251,7 @@
     --surface: #ffffff;
     --raised: #ffffff;
     --line: #d4d4d8;
-    --line-strong: #a1a1aa;
+    --line-strong: #71717a;
     --ink: #000000;
     --ink-muted: #27272a;
     --ink-subtle: #52525b;

@@ -92,7 +92,12 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <LocaleSwitch className="hidden sm:flex" />
+          {/*
+            Always visible, at every width. Burying the language switch behind a
+            hamburger is the wrong trade on a site whose Arabic readers may not
+            realise there is an Arabic version — it has to be one tap, not two.
+          */}
+          <LocaleSwitch />
           <ThemeToggle />
 
           <button
@@ -123,9 +128,15 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
 
       {/* Mobile drawer. Kept in the DOM but inert when closed so the open/close
           transition can animate; aria-hidden keeps it out of the a11y tree. */}
+      {/*
+        `inert` rather than aria-hidden: aria-hidden alone leaves the links
+        focusable, which is itself a violation (aria-hidden-focus) and lets a
+        keyboard user tab into an invisible menu. inert removes the subtree from
+        both the focus order and the accessibility tree in one attribute.
+      */}
       <div
         id="mobile-nav"
-        aria-hidden={!open}
+        inert={!open}
         className={cn(
           'overflow-hidden border-line bg-canvas/95 backdrop-blur-xl transition-[max-height,opacity] duration-300 md:hidden',
           open ? 'max-h-96 border-b opacity-100' : 'pointer-events-none max-h-0 opacity-0',
@@ -137,7 +148,6 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
               key={item.key}
               href={item.href}
               onClick={() => setOpen(false)}
-              tabIndex={open ? undefined : -1}
               aria-current={isActive(item.href) ? 'page' : undefined}
               className={cn(
                 'rounded-card px-3 py-2.5 text-base transition-colors',
@@ -147,7 +157,6 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
               {t(item.key)}
             </Link>
           ))}
-          <LocaleSwitch className="mt-2 self-start sm:hidden" />
         </nav>
       </div>
     </header>

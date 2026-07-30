@@ -27,7 +27,12 @@ export async function FeaturedWork({ locale }: { locale: Locale }) {
 
         <ul className="mt-12 space-y-5">
           {featured.map((project, index) => (
-            <Reveal as="li" key={project.slug} delay={Math.min(index, 4) * 0.06}>
+            <Reveal
+              as="li"
+              key={project.slug}
+              delay={Math.min(index, 4) * 0.06}
+              className="min-w-0"
+            >
               <ProjectCard project={project} locale={locale} featured priority={index === 0} />
             </Reveal>
           ))}

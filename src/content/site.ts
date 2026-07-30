@@ -9,7 +9,19 @@ import type { Localized, Pillar } from '@/lib/schemas';
  *   - a second (Gulf) WhatsApp number may be added alongside the current one.
  */
 
-export const SITE_URL = 'https://osamajenana.com';
+/**
+ * Public origin, no trailing slash. Drives canonical URLs, hreflang alternates,
+ * OG image URLs, the sitemap and the RSS feed.
+ *
+ * Read from the environment so a preview deployment or a local Lighthouse run
+ * emits canonicals for the origin it is actually served from — a canonical
+ * pointing at a different host is treated as invalid, which is exactly what
+ * Lighthouse flagged when this was a hardcoded constant.
+ */
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://osamajenana.com').replace(
+  /\/+$/,
+  '',
+);
 
 export const owner = {
   /** Legal name — used in JSON-LD, the CV, and the copyright line. */

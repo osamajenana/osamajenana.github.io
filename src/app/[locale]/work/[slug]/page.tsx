@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ArchDiagram } from '@/components/diagrams/ArchDiagram';
 import { getDiagram } from '@/components/diagrams';
 import { ButtonAnchor } from '@/components/ui/Button';
+import { MetricList } from '@/components/ui/MetricList';
 import { Reveal } from '@/components/ui/Reveal';
 import { StatusDot, Tag } from '@/components/ui/Tag';
 import { pillars as pillarConfig } from '@/content/site';
@@ -140,21 +141,12 @@ export default async function CaseStudyPage({
             <h2 id="metrics-heading" className="sr-only">
               {cs('metrics')}
             </h2>
-            <dl className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4">
-              {project.metrics.map((metric) => (
-                <div key={metric.label.en}>
-                  <dd className="nums text-3xl font-semibold text-ink sm:text-4xl">
-                    {metric.value}
-                  </dd>
-                  <dt className="mt-1.5 text-sm text-ink-muted">{metric.label[locale]}</dt>
-                  {metric.hint && (
-                    <p className="mt-1 text-xs leading-relaxed text-ink-subtle">
-                      {metric.hint[locale]}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </dl>
+            <MetricList
+              metrics={project.metrics}
+              locale={locale}
+              size="lg"
+              className="grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4"
+            />
           </div>
         </section>
       )}

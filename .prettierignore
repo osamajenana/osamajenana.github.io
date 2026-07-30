@@ -6,5 +6,8 @@ playwright-report/
 test-results/
 _assets-in/
 public/
+# Prose, not code. Line breaks in a post are an authoring decision, and
+# reflowing Arabic paragraphs is not a formatting improvement.
 *.md
+*.mdx
 package-lock.json
