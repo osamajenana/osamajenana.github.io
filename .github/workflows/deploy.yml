@@ -1,0 +1,65 @@
+name: Deploy
+
+# Only after CI has passed on the same commit — a deploy that skips the quality
+# gate defeats the point of having one.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [v2-nextjs]
+  workflow_dispatch:
+
+# Never let two deploys race for the `current` symlink.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    # `workflow_dispatch` has no conclusion, so allow it through explicitly.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    environment:
+      name: production
+      url: https://osamajenana.com
+
+    steps:
+      - name: Run the deploy script over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          # The server builds, smoke-tests the new release on a throwaway port,
+          # and only then flips the symlink — rolling itself back if the build
+          # does not answer. Nothing here needs to know any of that.
+          script_stop: true
+          script: |
+            set -e
+            cd /var/www/portfolio/repo
+            ./deploy/deploy.sh
+
+      - name: Verify the live site
+        run: |
+          set -e
+          # Give PM2 a moment to finish the reload before asserting.
+          sleep 5
+
+          for path in / /en /ar /en/work /sitemap.xml /robots.txt; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -L "https://osamajenana.com$path")
+            printf '%-16s %s\n' "$path" "$code"
+            [ "$code" = "200" ] || { echo "::error::$path returned $code"; exit 1; }
+          done
+
+          # The old site shipped a placeholder canonical for months. Assert the
+          # real one is present so that cannot happen again unnoticed.
+          canonical=$(curl -s https://osamajenana.com/en | grep -o 'rel="canonical" href="[^"]*"' | head -1)
+          echo "$canonical"
+          case "$canonical" in
+            *osamajenana.com/en*) ;;
+            *) echo "::error::unexpected canonical: $canonical"; exit 1 ;;
+          esac
