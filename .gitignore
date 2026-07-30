@@ -1,0 +1,59 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+.next-env.d.ts
+
+# production
+/build
+/dist
+
+# testing
+/coverage
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
+/.lighthouseci/
+
+# env
+.env
+.env*.local
+.env.production
+
+# raw source assets inbox (originals: photos, reference PDFs, exports)
+# only processed output lands in public/
+/_assets-in/
+
+# misc
+.DS_Store
+Thumbs.db
+*.pem
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+/logs/
+*.log
+
+# typescript
+*.tsbuildinfo
+
+# pm2
+.pm2/

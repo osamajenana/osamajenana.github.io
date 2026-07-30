@@ -1,0 +1,183 @@
+{
+  "meta": {
+    "titleDefault": "Osama Jenana — Full-Stack Product Engineer",
+    "titleTemplate": "%s — Osama Jenana",
+    "description": "Full-Stack Product Engineer building complete products end to end — Laravel, Vue, Next.js, Node, Flutter and AI. 40+ production systems across web, mobile and infrastructure."
+  },
+  "nav": {
+    "home": "Home",
+    "work": "Work",
+    "about": "About",
+    "services": "Services",
+    "blog": "Writing",
+    "contact": "Contact",
+    "cv": "CV",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "skipToContent": "Skip to content"
+  },
+  "theme": {
+    "toggle": "Switch theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "locale": {
+    "switch": "Switch language",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "hero": {
+    "line1": "I build complete products —",
+    "line2": "and I make them intelligent.",
+    "role": "Full-Stack Product Engineer",
+    "stack": "Laravel · Vue · Next.js · Node · Flutter · AI",
+    "availability": "Available for remote roles and selected freelance work",
+    "ctaWork": "See the work",
+    "ctaCv": "Download CV",
+    "sceneLabel": "An animated diagram of a production stack: client, nginx, application server, Redis queue, MySQL, WebSocket server and an AI service, with data flowing between them.",
+    "scrollHint": "Scroll"
+  },
+  "pillars": {
+    "title": "What I actually do",
+    "lead": "Three areas, one engineer. Every product below was designed, built, shipped and kept running by the same pair of hands."
+  },
+  "work": {
+    "title": "Work",
+    "eyebrow": "{count} selected systems",
+    "lead": "Selected systems from 40+ shipped products. Case studies go into architecture, hard trade-offs and measured outcomes.",
+    "featuredTitle": "Featured work",
+    "viewCase": "Read the case study",
+    "viewLive": "Visit site",
+    "viewRepo": "Source",
+    "allWork": "All work",
+    "archive": "Archive",
+    "archiveLead": "Everything else, for completeness — name, stack and year.",
+    "filterAll": "All",
+    "filterBy": "Filter by",
+    "noResults": "Nothing matches that filter yet.",
+    "role": "Role",
+    "period": "Period",
+    "stack": "Stack",
+    "status": "Status",
+    "clientWithheld": "Client withheld",
+    "statusLive": "Live",
+    "statusShipped": "Shipped",
+    "statusInternal": "Internal system",
+    "statusArchived": "Archived",
+    "statusWip": "In progress"
+  },
+  "blog": {
+    "title": "Writing",
+    "lead": "Notes on decisions that were not obvious at the time — architecture, trade-offs, and the things that only show up in production.",
+    "readingTime": "{minutes} min read",
+    "empty": "Nothing published yet.",
+    "rss": "Subscribe via RSS",
+    "fromProject": "This came out of"
+  },
+  "services": {
+    "title": "Services",
+    "lead": "Three things I get hired for. Each one is backed by a system on this site that is running in production right now.",
+    "deliverables": "What you get",
+    "proof": "Built this before:",
+    "engagement": "How this works",
+    "engagementBody": "Fixed-scope projects for a defined build, or a monthly retainer when the system needs someone who keeps it running. Either way you deal with the person writing the code — there is no account manager in between, and no handover to a team you have not met.",
+    "pricing": "No price list. A number without a scope is either an underquote I regret or an overquote that loses the conversation. Tell me the problem and what it currently costs you, and you get a real figure within two working days.",
+    "ctaTitle": "Describe the problem, not the solution",
+    "ctaBody": "The most useful first message is what is going wrong and what it costs you. I will tell you honestly whether I am the right person for it.",
+    "bookCall": "Book an intro call",
+    "startHere": "Send the details",
+    "whatsapp": "Message on WhatsApp"
+  },
+  "metrics": {
+    "title": "By the numbers",
+    "systems": "Systems documented on this site",
+    "years": "Years shipping to production",
+    "technologies": "Distinct technologies in use",
+    "liveNow": "Running in production you can visit",
+    "githubNote": "Public repositories are a floor, not a total — most of this work lives in private and organisation repos.",
+    "lastPush": "last push"
+  },
+  "stack": {
+    "title": "Tools, weighted by use",
+    "lead": "Counted across the projects on this site, not a list of everything I have opened once. The multiplier is how many shipped systems it appears in."
+  },
+  "caseStudy": {
+    "problem": "The problem",
+    "constraints": "Hard constraints",
+    "architecture": "Architecture",
+    "decisions": "Design decisions",
+    "chose": "Chose",
+    "over": "over",
+    "outcome": "Outcome",
+    "lessons": "What I'd carry forward",
+    "contents": "Contents",
+    "next": "Next case study",
+    "metrics": "Key figures"
+  },
+  "about": {
+    "title": "About",
+    "focus": "Where I focus",
+    "experience": "Experience",
+    "education": "Education",
+    "skills": "Skills",
+    "getInTouch": "Get in touch",
+    "stats": {
+      "years": "Years shipping software",
+      "systems": "Systems on this site",
+      "skillAreas": "Skill areas",
+      "languages": "Working languages"
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "lead": "Tell me what you are building. I read every message and reply within a day.",
+    "name": "Your name",
+    "email": "Your email",
+    "message": "Your message",
+    "subject": "What is this about?",
+    "send": "Send message",
+    "sending": "Sending…",
+    "sent": "Thanks — your message reached me. I will reply within a day.",
+    "orEmail": "Or email directly",
+    "orWhatsapp": "Or message on WhatsApp",
+    "errors": {
+      "nameRequired": "Please tell me your name.",
+      "emailInvalid": "That email address does not look right.",
+      "messageShort": "A little more detail would help — at least 20 characters.",
+      "rateLimited": "That is a few too many messages. Try again in a few minutes.",
+      "failed": "Something broke on my side. Please email me directly instead."
+    }
+  },
+  "cv": {
+    "title": "CV",
+    "lead": "The same data that drives this site. Nothing here is unverified.",
+    "download": "Download PDF",
+    "print": "Print / Save as PDF",
+    "printHint": "The Arabic CV is best produced with Print — browsers shape Arabic text correctly, PDF generators do not.",
+    "profile": "Profile",
+    "experience": "Experience",
+    "education": "Education",
+    "skills": "Skills",
+    "projects": "Selected projects",
+    "contact": "Contact",
+    "updated": "Last updated",
+    "moreOnSite": "Full case studies and the other 35+ projects are on the site."
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "builtWith": "Built with Next.js. Self-hosted on my own VPS.",
+    "backToTop": "Back to top"
+  },
+  "notFound": {
+    "title": "This page does not exist",
+    "lead": "The link may be old, or I may have moved something. Try the work index.",
+    "cta": "Go to work"
+  },
+  "common": {
+    "present": "Present",
+    "and": "and",
+    "readMore": "Read more",
+    "loading": "Loading…"
+  }
+}

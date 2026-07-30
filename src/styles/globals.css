@@ -1,0 +1,367 @@
+@import 'tailwindcss';
+
+/* next-themes stamps data-theme on <html>; make Tailwind's dark: variant follow it. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ---------------------------------------------------------------------------
+   Semantic palette. Values live on :root / [data-theme] so they swap at
+   runtime; @theme inline below turns them into Tailwind utilities that read
+   the live variable rather than freezing the :root value.
+   Contrast verified against WCAG AA for every text pairing in use.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* light */
+  --canvas: #fbfbfc;
+  --surface: #ffffff;
+  --raised: #f4f5f7;
+  --line: #e3e6eb;
+  --line-strong: #cbd1da;
+
+  --ink: #0c0e12; /* 19:1 on canvas */
+  --ink-muted: #575e6b; /* 7.0:1  */
+  --ink-subtle: #79808d; /* 4.6:1  — large text / decorative only */
+
+  --brand: #2e5fe8; /* 5.4:1  */
+  --brand-strong: #1e4bc8;
+  --brand-dim: #e8eeff;
+
+  --ai: #067f5b; /* 4.9:1  */
+  --ai-strong: #045c42;
+  --ai-dim: #e2f7ef;
+
+  --heat: #c93a18;
+
+  --focus: #2e5fe8;
+
+  /* scene backdrop gradient stops (hero poster + canvas clear colour) */
+  --scene-1: #eef1f7;
+  --scene-2: #dfe5f2;
+}
+
+[data-theme='dark'] {
+  --canvas: #08090c;
+  --surface: #101216;
+  --raised: #16191f;
+  --line: #22262e;
+  --line-strong: #333944;
+
+  --ink: #f4f5f7; /* 18:1 on canvas */
+  --ink-muted: #9ba1ac; /* 8.5:1 */
+  --ink-subtle: #6b727e; /* 4.6:1 — large text / decorative only */
+
+  --brand: #5b8cff; /* 6.9:1 */
+  --brand-strong: #7ba2ff;
+  --brand-dim: #131a2e;
+
+  --ai: #35e0a1; /* 11.6:1 */
+  --ai-strong: #5cf0b8;
+  --ai-dim: #0c1f19;
+
+  --heat: #ff6b4a;
+
+  --focus: #7ba2ff;
+
+  --scene-1: #0a0c11;
+  --scene-2: #10131c;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-dim: var(--brand-dim);
+
+  --color-ai: var(--ai);
+  --color-ai-strong: var(--ai-strong);
+  --color-ai-dim: var(--ai-dim);
+
+  --color-heat: var(--heat);
+  --color-focus: var(--focus);
+}
+
+@theme {
+  /* Typography — the CSS vars are injected by next/font in the root layout. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, 'SF Mono', monospace;
+  --font-arabic: var(--font-plex-arabic), var(--font-geist-sans), sans-serif;
+  --font-display: var(--font-instrument-serif), Georgia, 'Times New Roman', serif;
+
+  /* Fluid display scale — clamp() so headings never need breakpoint overrides */
+  --text-display-sm: clamp(1.75rem, 1.2rem + 2.4vw, 2.75rem);
+  --text-display-sm--line-height: 1.1;
+  --text-display: clamp(2.25rem, 1.4rem + 4vw, 4.5rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.03em;
+  --text-display-lg: clamp(2.75rem, 1.5rem + 6vw, 6.5rem);
+  --text-display-lg--line-height: 0.98;
+  --text-display-lg--letter-spacing: -0.04em;
+
+  /* Shape */
+  --radius-card: 1rem;
+  --radius-panel: 1.5rem;
+  --radius-pill: 999px;
+
+  /* Motion — shared with the `motion` library via lib/motion.ts */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Layout */
+  --spacing-gutter: 1.25rem;
+  --container-page: 76rem;
+}
+
+/* --------------------------------------------------------------------------- */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    /* Tailwind 4 no longer resets this; we want predictable box sizing. */
+    box-sizing: border-box;
+  }
+
+  html {
+    /* Lenis owns scrolling; native smooth-scroll would fight it. */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light;
+  }
+
+  [data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  /*
+   * Body text resolves through one indirection so the Arabic locale can swap
+   * the entire UI face by redefining a single variable. Setting font-family on
+   * html[lang='ar'] directly would lose to the more specific `body` rule below.
+   * Digits stay Western in both locales — the audience is technical.
+   */
+  :root {
+    --font-ui: var(--font-sans);
+  }
+
+  html[lang='ar'] {
+    --font-ui: var(--font-arabic);
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+    font-feature-settings:
+      'cv11' 1,
+      'ss01' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Visible, consistent focus for keyboard users only. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand);
+    color: #fff;
+  }
+
+  /* Headings should never be orphaned mid-word in either script. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /*
+   * Media never overflows its container.
+   *
+   * `canvas` is deliberately excluded: WebGL canvases have their drawing-buffer
+   * dimensions set in pixels by the renderer, and a `max-width` clamp fights
+   * that sizing loop.
+   */
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Honour the OS setting everywhere, not just in the 3D scene. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Print. Used mainly by /cv, where the browser's own Arabic shaping and bidi
+   engine produce a better PDF than any generator. Colours are forced to a light
+   palette regardless of the on-screen theme so a dark page never prints as a
+   sheet of ink.
+--------------------------------------------------------------------------- */
+
+@media print {
+  :root,
+  [data-theme='dark'] {
+    --canvas: #ffffff;
+    --surface: #ffffff;
+    --raised: #ffffff;
+    --line: #d4d4d8;
+    --line-strong: #a1a1aa;
+    --ink: #000000;
+    --ink-muted: #27272a;
+    --ink-subtle: #52525b;
+    --brand: #1e3a8a;
+    --ai: #065f46;
+    --heat: #7f1d1d;
+  }
+
+  @page {
+    margin: 14mm 14mm 16mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  body {
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+
+  /* The CV document fills the sheet; screen gutters and max-width do not apply. */
+  .cv-sheet {
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  /* Links print as plain text — a printed URL in brackets is noise on a CV. */
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+  /* Never orphan a heading at the foot of a page. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Syntax highlighting.
+
+   rehype-pretty-code is configured with two themes, so each token span carries
+   `--shiki-light` and `--shiki-dark` custom properties but no `color` of its
+   own. These rules pick one — without them every token renders in the inherited
+   colour and the highlighting silently does nothing.
+--------------------------------------------------------------------------- */
+
+@layer components {
+  code[data-theme] span,
+  pre[data-theme] span {
+    color: var(--shiki-dark);
+    font-style: var(--shiki-dark-font-style);
+    font-weight: var(--shiki-dark-font-weight);
+    text-decoration: var(--shiki-dark-text-decoration);
+  }
+
+  :root:not([data-theme='dark']) code[data-theme] span,
+  :root:not([data-theme='dark']) pre[data-theme] span {
+    color: var(--shiki-light);
+    font-style: var(--shiki-light-font-style);
+    font-weight: var(--shiki-light-font-weight);
+    text-decoration: var(--shiki-light-text-decoration);
+  }
+
+  /* Line numbers and highlighted lines, if a post opts into them. */
+  code[data-line-numbers] {
+    counter-reset: line;
+  }
+
+  code[data-line-numbers] > [data-line]::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    width: 1.5rem;
+    margin-inline-end: 1rem;
+    text-align: end;
+    color: var(--color-ink-subtle);
+  }
+
+  [data-highlighted-line] {
+    background-color: color-mix(in oklab, var(--color-brand) 12%, transparent);
+    border-inline-start: 2px solid var(--color-brand);
+    margin-inline-start: -0.75rem;
+    padding-inline-start: calc(0.75rem - 2px);
+  }
+}
+
+@layer utilities {
+  /* Page gutter + max width in one class. */
+  .container-page {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--container-page);
+    padding-inline: var(--spacing-gutter);
+  }
+
+  /* Screen-reader-only, but focusable (used by the skip link). */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .not-sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  /* Tabular figures for metrics and counters so digits don't jitter. */
+  .nums {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
+  }
+}

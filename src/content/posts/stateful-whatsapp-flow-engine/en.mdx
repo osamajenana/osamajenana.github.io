@@ -1,0 +1,98 @@
+A butcher and grocery business with several branches was taking every order by hand on WhatsApp. The orders were arriving fine — customers already knew how to use it. What was missing was any record of them: prices came from a staff member's memory, and "what did branch three sell yesterday" meant scrolling a chat.
+
+The obvious fix was to build an app. That was the wrong fix. Their channel was already working; asking customers to install something would have traded a working channel for a funnel with a drop-off at every step. So the requirement inverted: keep WhatsApp as the entire storefront, and put a real system behind it.
+
+Which raises the question this post is about. A WhatsApp conversation is long-lived and can be abandoned halfway. How does the backend know where a customer is?
+
+## The tempting answer
+
+Read the conversation back and work it out.
+
+It sounds flexible. You already have the message history, you can look at what was said, and you avoid storing anything extra. For a five-item menu it even works.
+
+It falls apart for three reasons.
+
+**Every reply becomes an ambiguous parse.** A customer types `2`. Is that quantity two, menu option two, or branch two? You disambiguate using the previous message, then the one before that, and now the meaning of any given reply depends on an unbounded amount of history.
+
+**It gets worse as the catalog grows.** Every new product is a new string that might collide with an existing one. The parsing logic accumulates special cases that exist purely because two unrelated things happen to look alike.
+
+**It cannot be tested in isolation.** To test "customer confirms an order" you must first construct a plausible history that leads there. The test is now coupled to every step before it, and a change to step two breaks the test for step nine.
+
+## What I did instead
+
+Each step in the conversation is a class. The customer's current position is a row in the database.
+
+```php
+abstract class Step
+{
+    /** Rendered when the customer arrives at this step. */
+    abstract public function prompt(Conversation $conversation): OutboundMessage;
+
+    /**
+     * Interpret one inbound message *in the context of this step only*, and
+     * return where the conversation goes next.
+     */
+    abstract public function handle(
+        Conversation $conversation,
+        InboundMessage $message,
+    ): StepTransition;
+}
+```
+
+The engine itself is almost boring, which is the point:
+
+```php
+final class FlowEngine
+{
+    public function advance(Conversation $conversation, InboundMessage $message): void
+    {
+        $step = $this->resolve($conversation->current_step);
+
+        $transition = $step->handle($conversation, $message);
+
+        if ($transition->isInvalid()) {
+            // Re-prompt without moving. The customer is not lost, and neither
+            // is the system.
+            $this->dispatch($step->prompt($conversation), $conversation);
+            return;
+        }
+
+        $conversation->update(['current_step' => $transition->nextStep]);
+
+        $this->dispatch(
+            $this->resolve($transition->nextStep)->prompt($conversation),
+            $conversation,
+        );
+    }
+}
+```
+
+`handle` receives one message and only has to make sense of it *within its own step*. `2` inside `ChooseBranch` means branch two. Inside `ChooseQuantity` it means two units. There is nothing to disambiguate because the context is the step, not the history.
+
+## What that bought
+
+**Abandoned orders resume for free.** A customer who walks away mid-order and comes back four hours later is a row lookup, not a reconstruction. There is no code path for "resume" at all — resuming is just the next message arriving.
+
+**Steps are unit-testable.** Each test constructs a conversation at one known step, sends one message, and asserts the transition. No history to fabricate. That is a large part of why the suite reached 53 test files, weighted towards the payment and flow paths where a defect costs real money.
+
+**Invalid input stops being an exception.** A reply that makes no sense at the current step re-prompts and the position does not move. There is no half-advanced state to recover from.
+
+## The rule that had to live in code
+
+Meta enforces a 24-hour customer service window: outside it, you may only send pre-approved templates. Break that and the penalty is not a validation error — it is quality-rating damage to the business phone number, and eventually losing it.
+
+For a store whose only channel is WhatsApp, that is existential. So it could not be a line in a staff handbook.
+
+Every outbound message passes through a window service that checks the conversation's last inbound timestamp and decides: free-form, or dispatch an approved template. The system physically cannot send the wrong kind of message. Compliance became a code path with a test, rather than something a tired person has to remember at 11pm.
+
+## Where the seam went
+
+One more decision worth naming. The Meta webhook handling does not live in Laravel at all — it sits in a separate Node service that verifies the signature, decrypts WhatsApp Flow payloads, normalises the message shape, and forwards inward over an HMAC-signed boundary. Fourteen files, no database, no business rules.
+
+A Laravel route would have been less infrastructure. Three things pushed the other way: Meta requires raw-body signature verification, which fights framework middleware that has already parsed the request; Flow encryption needs RSA and AES key handling that has no business sitting next to invoice logic; and webhook delivery has to be acknowledged fast, which a thin verify-and-forward service can do regardless of how slow the work behind it is.
+
+The payoff is that when Meta changes an envelope, business code is not touched.
+
+## The takeaway
+
+If a conversation has steps, model the steps. The version that reads the log to guess where you are will feel clever for about a week, and then every new product will make it slightly worse forever.

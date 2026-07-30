@@ -1,0 +1,22 @@
+# Normalise line endings to LF in the repository and on checkout.
+#
+# This is authored on Windows but built and run on a Linux VPS. Without this,
+# CRLF endings reach the server, where they break shell scripts outright and
+# make diffs noisy for anyone on another platform.
+* text=auto eol=lf
+
+# Explicitly binary so Git never attempts line-ending or diff conversion.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+
+# Generated: keep it out of diffs and out of language statistics.
+package-lock.json -diff linguist-generated
