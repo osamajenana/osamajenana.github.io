@@ -26,8 +26,17 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://osamajenan
 export const owner = {
   /** Legal name — used in JSON-LD, the CV, and the copyright line. */
   fullName: 'Osama Raed Jenana',
-  /** Display name — navbar, hero, OG images. */
+  /** Display name — navbar, OG images. */
   shortName: 'Osama Jenana',
+  /**
+   * The hero sets the name two lines deep at display size, so it needs the
+   * split rather than a string it would have to guess a break point in. The
+   * Arabic form is the short one — the full three-part name is on the CV.
+   */
+  displayName: {
+    en: { first: 'Osama', last: 'Jenana' },
+    ar: { first: 'أسامة', last: 'جنينة' },
+  },
   role: {
     en: 'Full-Stack Product Engineer',
     ar: 'مهندس منتجات Full-Stack',
@@ -51,6 +60,20 @@ export const owner = {
   yearsExperience: 6,
   /** Year the first paid project shipped — drives the "since" copy. */
   since: 2019,
+} as const;
+
+/**
+ * The CV.
+ *
+ * `file` is the designed PDF that ships in public/ — the document Osama hands
+ * to a client, not something generated from this repo's data. It is the only
+ * thing a "Download CV" control may point at; /api/cv redirects here so older
+ * links keep working.
+ */
+export const cv = {
+  file: '/cv/Osama-Jenana-CV.pdf',
+  /** Filename the browser saves it as, via the anchor's `download` attribute. */
+  downloadName: 'Osama-Jenana-CV.pdf',
 } as const;
 
 export const socials = {
@@ -110,15 +133,14 @@ export const pillars: Record<
  * Primary navigation.
  *
  * `minPosts` gates a route behind a content threshold rather than a hand-flipped
- * flag, so the nav can never advertise a section that is effectively empty — a
- * blog with one entry reads as abandoned. The layout resolves this against the
- * real post count and passes the result to the header.
+ * flag, so the nav can never advertise a section with nothing in it. The layout
+ * resolves this against the real post count and passes the result to the header.
  */
 export const navItems = [
   { key: 'work', href: '/work' },
   { key: 'about', href: '/about' },
   { key: 'services', href: '/services' },
-  { key: 'blog', href: '/blog', minPosts: 2 },
+  { key: 'blog', href: '/blog', minPosts: 1 },
   { key: 'contact', href: '/contact' },
 ] as const;
 

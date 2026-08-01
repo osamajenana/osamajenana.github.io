@@ -123,12 +123,19 @@ export function ArchDiagram({
   locale,
   className,
   hideCaption = false,
+  animated = false,
 }: {
   spec: DiagramSpec;
   locale: Locale;
   className?: string;
   /** On a card the caption duplicates the summary; the SVG keeps its own title. */
   hideCaption?: boolean;
+  /**
+   * Sends a pulse along each connector. Off by default: six of these animating
+   * at once inside the work list is noise, and on a card the diagram is small
+   * enough that the dash is barely a pixel. The home page runs one, large.
+   */
+  animated?: boolean;
 }) {
   const boxes = new Map(spec.nodes.map((node) => [node.id, boxOf(node)]));
 
@@ -190,7 +197,7 @@ export function ArchDiagram({
 
         {/* Edges first so boxes always sit on top of the lines. */}
         <g>
-          {spec.edges.map((edge) => {
+          {spec.edges.map((edge, index) => {
             const a = boxes.get(edge.from);
             const b = boxes.get(edge.to);
             if (!a || !b) return null;
@@ -212,6 +219,25 @@ export function ArchDiagram({
                   markerEnd="url(#arch-arrow)"
                   className="stroke-line-strong"
                 />
+
+                {/*
+                  The packet. `pathLength={100}` renormalises the dash maths to
+                  a percentage of the path, so one keyframe drives every
+                  connector regardless of how long it actually is — without it
+                  each path would need its own measured offset.
+                */}
+                {animated && (
+                  <path
+                    d={d}
+                    pathLength={100}
+                    fill="none"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    className={cn('diagram-pulse', edge.async ? 'stroke-ai' : 'stroke-brand')}
+                    style={{ animationDelay: `${index * 0.42}s` }}
+                  />
+                )}
+
                 {edge.label && (
                   <text
                     x={labelX}

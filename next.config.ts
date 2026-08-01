@@ -56,10 +56,6 @@ const nextConfig: NextConfig = {
     deviceSizes: [390, 640, 828, 1080, 1440, 1920, 2880],
   },
 
-  // @react-pdf/renderer must not be bundled by Turbopack — it resolves its own
-  // font/stream internals at runtime inside the /api/cv route handler.
-  serverExternalPackages: ['@react-pdf/renderer'],
-
   async headers() {
     return [
       {
@@ -72,6 +68,18 @@ const nextConfig: NextConfig = {
         source: '/fonts/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
+      {
+        // Portrait crops are content-addressed by size in the filename.
+        source: '/me/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
+      {
+        // The CV is replaced in place when it is revised, so it gets a short
+        // TTL rather than an immutable one — a stale year-old CV in someone's
+        // cache is exactly the failure this must not have.
+        source: '/cv/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=3600, must-revalidate' }],
+      },
     ];
   },
 
@@ -80,7 +88,7 @@ const nextConfig: NextConfig = {
       // The legacy static site linked the CV with a space in the filename.
       {
         source: '/osama jenana-Full Stack Developer.pdf',
-        destination: '/api/cv?locale=en',
+        destination: '/cv/Osama-Jenana-CV.pdf',
         permanent: true,
       },
     ];

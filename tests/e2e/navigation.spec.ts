@@ -2,8 +2,52 @@ import { expect, test } from '@playwright/test';
 
 /**
  * Behaviour that axe cannot see: keyboard access, direction switching, and the
- * hero scene's performance guarantees.
+ * stack scene's performance guarantees.
  */
+
+test.describe('defaults', () => {
+  /**
+   * `/` goes to English for everyone. next-intl's locale detection is off, so
+   * neither Accept-Language nor a stale NEXT_LOCALE cookie can send a visitor
+   * somewhere else — a recruiter following a link has to land on the English
+   * site whatever their browser is configured for.
+   */
+  test('the root lands on English whatever the browser asks for', async ({ browser }) => {
+    const context = await browser.newContext({ locale: 'ar-SA' });
+    const page = await context.newPage();
+
+    await page.goto('/');
+    await expect(page).toHaveURL(/\/en$/);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+
+    await context.close();
+  });
+
+  /**
+   * Dark is the site's own default, not a mirror of the OS. A visitor whose
+   * system is set to light still opens on dark until they use the toggle.
+   */
+  test('opens dark even when the OS asks for light', async ({ browser }) => {
+    const context = await browser.newContext({ colorScheme: 'light' });
+    const page = await context.newPage();
+
+    await page.goto('/en');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    await context.close();
+  });
+
+  test('remembers the theme the visitor chose', async ({ page }) => {
+    await page.goto('/en');
+    await page.getByRole('button', { name: /switch theme/i }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+
+    // The bootstrap script has to read it back before first paint, so this must
+    // survive a full reload rather than a client-side re-render.
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  });
+});
 
 test.describe('locale and direction', () => {
   test('English renders left-to-right', async ({ page }) => {
@@ -105,40 +149,53 @@ test.describe('keyboard access', () => {
   });
 });
 
-test.describe('hero scene', () => {
-  test('pauses rendering once it leaves the viewport', async ({ page }) => {
+test.describe('stack diagram', () => {
+  /**
+   * The section used to be a WebGL canvas. It is vector now, which is the whole
+   * point: it has to be real text in the DOM, not pixels in a drawing buffer.
+   */
+  test('is vector, with its labels as selectable text', async ({ page }) => {
     await page.goto('/en');
 
-    const holder = page.locator('[data-scene-mode]');
-    await expect(holder).toHaveAttribute('data-scene-paused', 'false', { timeout: 20_000 });
+    const figure = page.getByRole('group', { name: /a request arrives at nginx/i });
+    await figure.scrollIntoViewIfNeeded();
+    await expect(figure).toBeVisible();
 
-    await page.evaluate(() => window.scrollTo(0, 2000));
-    await expect(holder).toHaveAttribute('data-scene-paused', 'true');
+    await expect(figure.locator('svg')).toHaveCount(1);
+    await expect(figure.getByText('Laravel / Next.js')).toBeVisible();
+    await expect(figure.getByText('Redis + Queue')).toBeVisible();
 
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await expect(holder).toHaveAttribute('data-scene-paused', 'false');
+    // No WebGL anywhere on the page any more.
+    await expect(page.locator('canvas')).toHaveCount(0);
   });
 
-  test('falls back to the poster under reduced motion', async ({ page }) => {
+  test('drops the connector pulses under reduced motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/en');
 
-    const holder = page.locator('[data-scene-mode]');
-    await expect(holder).toHaveAttribute('data-scene-mode', 'poster', { timeout: 20_000 });
-    await expect(page.locator('canvas')).toHaveCount(0);
+    const pulse = page.locator('.diagram-pulse').first();
+    await expect(pulse).toBeAttached();
+    // Frozen mid-path, a pulse is an unexplained coloured tick sitting on a
+    // line, so reduced motion hides it rather than merely slowing it.
+    await expect(pulse).toBeHidden();
   });
 });
 
 test.describe('CV', () => {
-  test('the PDF downloads with a text layer', async ({ page }) => {
+  /**
+   * The download must be the designed PDF that ships in public/, not something
+   * generated from the site's own data — those two can disagree, and the one a
+   * client receives has to be the one that is kept up to date.
+   */
+  test('downloads the designed PDF', async ({ page }) => {
     await page.goto('/en/cv');
 
-    const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      page.getByRole('link', { name: /download pdf/i }).click(),
-    ]);
+    const link = page.getByRole('link', { name: /download pdf/i });
+    await expect(link).toHaveAttribute('href', '/cv/Osama-Jenana-CV.pdf');
 
-    expect(download.suggestedFilename()).toMatch(/^Osama_Jenana_CV_\d{4}\.pdf$/);
+    const [download] = await Promise.all([page.waitForEvent('download'), link.click()]);
+
+    expect(download.suggestedFilename()).toBe('Osama-Jenana-CV.pdf');
     // No spaces: the legacy site's CV link broke on exactly that.
     expect(download.suggestedFilename()).not.toContain(' ');
   });

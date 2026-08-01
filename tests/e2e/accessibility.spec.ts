@@ -30,19 +30,22 @@ for (const locale of LOCALES) {
     const path = `/${locale}${route}`;
 
     test(`no accessibility violations: ${path}`, async ({ page }) => {
+      /**
+       * Scanned with reduced motion, which is what makes this deterministic.
+       *
+       * The hero and every scroll-reveal animate in from `opacity: 0`. Under a
+       * loaded machine `networkidle` can fire while they are still part-way
+       * through, and axe then measures the contrast of half-transparent text
+       * and fails — which it did, on six routes, only when the whole suite was
+       * competing for workers. WCAG applies to the settled state, and under
+       * reduced motion these components render exactly that, immediately.
+       */
+      await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto(path);
-      // The hero canvas mounts lazily; wait for the page to settle so the scan
-      // sees the same DOM a visitor would.
       await page.waitForLoadState('networkidle');
 
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-        /**
-         * The WebGL canvas is decorative and marked aria-hidden; its text
-         * alternative lives in the hero's visually-hidden paragraph. axe cannot
-         * see inside a canvas, so scanning it produces noise rather than signal.
-         */
-        .exclude('canvas')
         .analyze();
 
       // Report the rule and the element, not just a count — a bare number is

@@ -1,11 +1,12 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { LocaleSwitch } from '@/components/ui/LocaleSwitch';
+import { Portrait } from '@/components/ui/Portrait';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { owner } from '@/content/site';
+import { cv, owner } from '@/content/site';
 import type { NavItem } from '@/content/site';
 import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ import { cn } from '@/lib/utils';
  */
 export function Header({ navItems }: { navItems: NavItem[] }) {
   const pathname = usePathname();
+  const locale = useLocale();
   const t = useTranslations('nav');
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -59,31 +61,50 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-40 transition-[background-color,border-color,backdrop-filter] duration-300 print:hidden',
+        'fixed inset-x-0 top-0 z-40 transition-[background-color,border-color,backdrop-filter,box-shadow] duration-300 print:hidden',
         scrolled
-          ? 'border-b border-line bg-canvas/80 backdrop-blur-xl'
+          ? 'border-b border-line bg-canvas/70 shadow-sm backdrop-blur-xl backdrop-saturate-150'
           : 'border-b border-transparent',
       )}
     >
-      <div className="container-page flex h-16 items-center justify-between gap-4">
+      <div className="container-page flex h-18 items-center justify-between gap-4">
+        {/* The face beside the name. A portfolio's masthead is the one place a
+            wordmark is worse than a person. */}
         <Link
           href="/"
-          className="text-sm font-semibold tracking-tight text-ink transition-opacity hover:opacity-70"
+          className="group flex items-center gap-2.5 transition-opacity hover:opacity-80"
         >
-          {owner.shortName}
+          <span className="size-8 shrink-0 overflow-hidden rounded-full border border-line shadow-sm">
+            <Portrait variant="avatar" sizes="32px" alt="" />
+          </span>
+          {/* The Arabic page should say the name in Arabic — a Latin wordmark
+              in an RTL masthead reads as an untranslated leftover. */}
+          <span className="text-sm font-semibold tracking-tight text-ink">
+            {locale === 'ar'
+              ? `${owner.displayName.ar.first} ${owner.displayName.ar.last}`
+              : owner.shortName}
+          </span>
         </Link>
 
-        <nav aria-label={t('menu')} className="hidden items-center gap-1 md:flex">
+        {/*
+          The nav sits in its own bordered track rather than floating loose in
+          the bar — it gives the active pill something to be inset into, which is
+          what makes the current page read as selected rather than merely tinted.
+        */}
+        <nav
+          aria-label={t('menu')}
+          className="hidden items-center gap-0.5 rounded-pill border border-line bg-surface/60 p-1 shadow-sm backdrop-blur md:flex"
+        >
           {navItems.map((item) => (
             <Link
               key={item.key}
               href={item.href}
               aria-current={isActive(item.href) ? 'page' : undefined}
               className={cn(
-                'rounded-pill px-3 py-1.5 text-sm transition-colors',
+                'rounded-pill px-3.5 py-1.5 text-sm transition-colors duration-200',
                 isActive(item.href)
-                  ? 'bg-raised text-ink'
-                  : 'text-ink-muted hover:bg-raised hover:text-ink',
+                  ? 'bg-raised font-medium text-ink shadow-sm'
+                  : 'text-ink-muted hover:bg-raised/70 hover:text-ink',
               )}
             >
               {t(item.key)}
@@ -99,6 +120,16 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
           */}
           <LocaleSwitch />
           <ThemeToggle />
+
+          {/* The CV is the single most-requested thing on a portfolio; it does
+              not belong two clicks deep behind a page. */}
+          <a
+            href={cv.file}
+            download={cv.downloadName}
+            className="hidden rounded-pill border border-line bg-surface px-3.5 py-1.5 text-sm text-ink shadow-sm transition-[border-color,background-color] hover:border-line-strong hover:bg-raised lg:inline-flex"
+          >
+            {t('cv')}
+          </a>
 
           <button
             type="button"
@@ -151,12 +182,23 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
               aria-current={isActive(item.href) ? 'page' : undefined}
               className={cn(
                 'rounded-card px-3 py-2.5 text-base transition-colors',
-                isActive(item.href) ? 'bg-raised text-ink' : 'text-ink-muted',
+                isActive(item.href)
+                  ? 'bg-raised font-medium text-ink'
+                  : 'text-ink-muted hover:bg-raised hover:text-ink',
               )}
             >
               {t(item.key)}
             </Link>
           ))}
+
+          <a
+            href={cv.file}
+            download={cv.downloadName}
+            onClick={() => setOpen(false)}
+            className="mt-2 rounded-card border border-line bg-surface px-3 py-2.5 text-base text-ink"
+          >
+            {t('cv')}
+          </a>
         </nav>
       </div>
     </header>

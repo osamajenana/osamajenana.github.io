@@ -1,13 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
 
+import { useTheme } from '@/components/providers/ThemeProvider';
 import { cn } from '@/lib/utils';
 
 /**
  * Icon visibility is driven entirely by CSS reading `[data-theme]` off <html>,
- * which next-themes stamps in a blocking inline script before first paint.
+ * which the layout's blocking inline script stamps before first paint.
  *
  * That avoids the usual `mounted` state guard: there is no hydration mismatch
  * to dodge because the server renders both icons and the browser decides which

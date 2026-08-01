@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PageHeader } from '@/components/layout/PageHeader';
-import { ButtonLink } from '@/components/ui/Button';
+import { ButtonLink, CvDownloadButton } from '@/components/ui/Button';
 import { StatItem } from '@/components/ui/MetricList';
+import { Portrait } from '@/components/ui/Portrait';
 import { Reveal } from '@/components/ui/Reveal';
 import { Tag } from '@/components/ui/Tag';
 import { resume } from '@/content/resume';
@@ -33,6 +34,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
   const t = await getTranslations('about');
   const cv = await getTranslations('cv');
+  const hero = await getTranslations('hero');
   const totalProjects = getWorkGrid().length + getArchive().length;
 
   return (
@@ -41,15 +43,37 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       <div className="container-page space-y-20 pb-24">
         {/* ---- profile ---- */}
-        <Reveal as="section" className="max-w-3xl">
-          <p className="text-lg leading-[1.75] text-ink-muted">{resume.profile[locale]}</p>
+        <Reveal as="section">
+          <div className="grid gap-10 sm:grid-cols-[14rem_minmax(0,1fr)] sm:gap-12 lg:gap-16">
+            <div className="relative w-40 sm:w-full">
+              <div
+                aria-hidden
+                className="absolute -inset-5 -z-10 rounded-[3rem] blur-2xl"
+                style={{
+                  background:
+                    'radial-gradient(60% 60% at 50% 40%, var(--aurora-1), transparent 72%)',
+                }}
+              />
+              <div className="panel panel-frame panel-deep aspect-[4/5] overflow-hidden">
+                <Portrait
+                  variant="portrait"
+                  sizes="(min-width: 640px) 14rem, 10rem"
+                  alt={hero('portraitAlt')}
+                />
+              </div>
+            </div>
 
-          <dl className="mt-10 grid grid-cols-2 gap-8 border-t border-line pt-8 sm:grid-cols-4">
-            <StatItem value={owner.yearsExperience} label={t('stats.years')} />
-            <StatItem value={totalProjects} label={t('stats.systems')} />
-            <StatItem value={resume.skills.length} label={t('stats.skillAreas')} />
-            <StatItem value={2} label={t('stats.languages')} />
-          </dl>
+            <div className="max-w-2xl">
+              <p className="text-lg leading-[1.75] text-ink-muted">{resume.profile[locale]}</p>
+
+              <dl className="mt-10 grid grid-cols-2 gap-8 border-t border-line pt-8 sm:grid-cols-4">
+                <StatItem value={owner.yearsExperience} label={t('stats.years')} />
+                <StatItem value={totalProjects} label={t('stats.systems')} />
+                <StatItem value={resume.skills.length} label={t('stats.skillAreas')} />
+                <StatItem value={2} label={t('stats.languages')} />
+              </dl>
+            </div>
+          </div>
         </Reveal>
 
         {/* ---- what I do ---- */}
@@ -58,12 +82,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <ul className="grid gap-5 md:grid-cols-3">
             {(Object.entries(pillars) as [Pillar, (typeof pillars)[Pillar]][]).map(
               ([key, pillar], index) => (
-                <Reveal
-                  as="li"
-                  key={key}
-                  delay={index * 0.06}
-                  className="rounded-panel border border-line bg-surface p-6"
-                >
+                <Reveal as="li" key={key} delay={index * 0.06} className="panel p-6">
                   <h3 className="font-semibold tracking-tight text-ink">{pillar.label[locale]}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-ink-muted">
                     {pillar.blurb[locale]}
@@ -153,7 +172,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
         <div className="flex flex-wrap gap-3">
           <ButtonLink href="/cv">{cv('title')}</ButtonLink>
-          <ButtonLink href="/contact" variant="secondary">
+          <CvDownloadButton>{cv('download')}</CvDownloadButton>
+          <ButtonLink href="/contact" variant="ghost">
             {t('getInTouch')}
           </ButtonLink>
         </div>
@@ -164,7 +184,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
 function SectionTitle({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <h2 id={id} className="mb-8 font-mono text-xs tracking-widest text-ink-subtle uppercase">
+    <h2 id={id} className="eyebrow mb-8">
       {children}
     </h2>
   );

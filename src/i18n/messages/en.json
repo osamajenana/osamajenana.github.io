@@ -28,19 +28,24 @@
     "ar": "العربية"
   },
   "hero": {
-    "line1": "I build complete products —",
-    "line2": "and I make them intelligent.",
+    "tagline": "I build complete products end to end — interface, API, database, mobile client and the server it all runs on — and I make them intelligent.",
     "role": "Full-Stack Product Engineer",
     "stack": "Laravel · Vue · Next.js · Node · Flutter · AI",
     "availability": "Available for remote roles and selected freelance work",
     "ctaWork": "See the work",
     "ctaCv": "Download CV",
-    "sceneLabel": "An animated diagram of a production stack: client, nginx, application server, Redis queue, MySQL, WebSocket server and an AI service, with data flowing between them.",
-    "scrollHint": "Scroll"
+    "portraitAlt": "Osama Jenana",
+    "statSystems": "systems shipped",
+    "statYears": "years in production"
+  },
+  "diagram": {
+    "title": "The stack, as it actually runs",
+    "lead": "Not a logo wall. This is the shape of a system I ship and then operate — every node here is something I have configured on a bare server and been paged about."
   },
   "pillars": {
     "title": "What I actually do",
-    "lead": "Three areas, one engineer. Every product below was designed, built, shipped and kept running by the same pair of hands."
+    "lead": "Three areas, one engineer. Every product below was designed, built, shipped and kept running by the same pair of hands.",
+    "count": "{count} systems"
   },
   "work": {
     "title": "Work",

@@ -41,29 +41,34 @@ export async function Metrics() {
   ];
 
   return (
-    <section aria-labelledby="metrics-heading" className="border-t border-line bg-surface">
-      <div className="container-page py-16 sm:py-20">
+    <section aria-labelledby="metrics-heading" className="border-t border-line">
+      <div className="container-page py-20 sm:py-24">
         <Reveal>
-          <h2
-            id="metrics-heading"
-            className="font-mono text-xs tracking-widest text-ink-subtle uppercase"
-          >
+          <h2 id="metrics-heading" className="eyebrow">
             {t('title')}
           </h2>
 
-          <dl className="mt-10 grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
-            {items.map((item) => (
-              <div key={item.label}>
-                <dd className="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
-                  <Counter value={item.value} />
-                </dd>
-                <dt className="mt-2 text-sm leading-snug text-ink-muted">{item.label}</dt>
-              </div>
-            ))}
-          </dl>
+          {/*
+            A 1px gap over the line colour draws the dividers between cells, so
+            the grid needs no per-cell border rules and none of the usual
+            last-child exceptions at each breakpoint. The grid owns the fill, so
+            the panel around it is hollow.
+          */}
+          <div className="panel panel-hollow mt-8 overflow-hidden">
+            <dl className="grid grid-cols-2 gap-px bg-line sm:grid-cols-4">
+              {items.map((item) => (
+                <div key={item.label} className="bg-surface px-6 py-9 sm:px-7 sm:py-11">
+                  <dd className="display-title text-5xl text-ink sm:text-6xl">
+                    <Counter value={item.value} />
+                  </dd>
+                  <dt className="mt-3 text-sm leading-snug text-ink-muted">{item.label}</dt>
+                </div>
+              ))}
+            </dl>
+          </div>
 
           {stats && (
-            <p className="mt-10 max-w-2xl text-sm leading-relaxed text-ink-subtle">
+            <p className="mt-8 max-w-2xl text-sm leading-relaxed text-ink-subtle">
               {t('githubNote')}{' '}
               <a
                 href={socials.github}

@@ -143,9 +143,9 @@ export async function ProjectCard({
   );
 
   const shell = cn(
-    'group flex h-full min-w-0 flex-col rounded-panel border border-line bg-surface transition-[border-color,transform] duration-300 ease-[var(--ease-out-quart)]',
+    'panel group flex h-full min-w-0 flex-col',
     featured ? 'p-7 sm:p-8' : 'p-6',
-    linksToCaseStudy && 'hover:-translate-y-1 hover:border-line-strong',
+    linksToCaseStudy && 'lift',
   );
 
   if (linksToCaseStudy) {

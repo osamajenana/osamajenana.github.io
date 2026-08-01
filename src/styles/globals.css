@@ -15,70 +15,117 @@
  * these very declarations and asserts every pairing against WCAG AA, so editing
  * a colour here without re-checking it fails the suite.
  *
+ * Light is warm paper rather than clinical white, dark is near-black with a
+ * blue cast. Both are neutrals with a temperature — a perfectly grey palette is
+ * what makes a page read as a word processor rather than a designed object.
+ *
  * `--line` is decorative (dividers, card edges). `--line-strong` is held to 3:1
  * because it draws form field boundaries, which a user has to be able to see.
  */
 :root {
   /* light */
-  --canvas: #fbfbfc;
-  --surface: #ffffff;
-  --raised: #f4f5f7;
-  --line: #e3e6eb;
-  --line-strong: #8d9198; /* 3.06:1 on white — form field borders */
+  --canvas: #f8f7f4; /* warm paper */
+  --surface: #fffefb;
+  --raised: #f1efe9;
+  --line: #e5e1d9;
+  --line-strong: #8a857b; /* 3.43:1 on canvas — form field borders */
 
-  --ink: #0c0e12; /* 19:1 on canvas */
-  --ink-muted: #575e6b; /* 7.0:1 */
-  --ink-subtle: #696f7b; /* 4.63:1 — small mono labels use this */
+  --ink: #15130f; /* 17.3:1 on canvas */
+  --ink-muted: #545049; /* 7.48:1 */
+  --ink-subtle: #67625a; /* 5.65:1 — small mono labels use this */
 
-  --brand: #2e5fe8; /* 5.4:1 */
-  --brand-strong: #1e4bc8;
-  --brand-dim: #e8eeff;
-  --on-brand: #ffffff; /* 5.36:1 on --brand — primary button label */
+  --brand: #2b53d8; /* 5.88:1 */
+  --brand-strong: #1d3fb5;
+  --brand-dim: #e9edfc;
+  --on-brand: #ffffff; /* 6.3:1 on --brand — primary button label */
 
-  --ai: #057b58; /* 4.72:1, incl. on --ai-dim */
-  --ai-strong: #045c42;
-  --ai-dim: #e2f7ef;
+  --ai: #05714f; /* 5.63:1, incl. on --ai-dim */
+  --ai-strong: #045539;
+  --ai-dim: #e1f5ec;
 
-  --heat: #c93a18;
+  --heat: #c23a18;
 
-  --focus: #2e5fe8;
+  --focus: #2b53d8;
 
   /* scene backdrop gradient stops (hero poster + canvas clear colour) */
-  --scene-1: #eef1f7;
-  --scene-2: #dfe5f2;
+  --scene-1: #eeeff6;
+  --scene-2: #e0e3f0;
 }
 
 [data-theme='dark'] {
-  --canvas: #08090c;
-  --surface: #101216;
-  --raised: #16191f;
-  --line: #22262e;
-  --line-strong: #5d626b; /* 3.06:1 on surface — form field borders */
+  --canvas: #08090e;
+  --surface: #101219;
+  --raised: #171a23;
+  --line: #232734;
+  --line-strong: #5f6472; /* 3.36:1 on canvas — form field borders */
 
-  --ink: #f4f5f7; /* 18:1 on canvas */
-  --ink-muted: #9ba1ac; /* 8.5:1 */
-  --ink-subtle: #7e848f; /* 4.68:1 — small mono labels use this */
+  --ink: #f4f5f8; /* 18.2:1 on canvas */
+  --ink-muted: #9aa0ad; /* 7.58:1 */
+  --ink-subtle: #7d8390; /* 5.23:1 — small mono labels use this */
 
-  --brand: #5b8cff; /* 6.9:1 */
-  --brand-strong: #7ba2ff;
-  --brand-dim: #131a2e;
+  --brand: #6b93ff; /* 6.86:1 */
+  --brand-strong: #8aabff;
+  --brand-dim: #141b30;
   /*
    * Near-black, not white. --brand is a light blue in this theme, so white text
    * on it measures about 2.9:1 — the original palette shipped a primary button
    * that failed AA until an axe run caught it.
    */
-  --on-brand: #08090c; /* 6.3:1 on --brand */
+  --on-brand: #06070c; /* 6.94:1 on --brand */
 
-  --ai: #35e0a1; /* 11.6:1 */
+  --ai: #35e0a1; /* 11.7:1 */
   --ai-strong: #5cf0b8;
-  --ai-dim: #0c1f19;
+  --ai-dim: #0b1f19;
 
   --heat: #ff6b4a;
 
-  --focus: #7ba2ff;
+  --focus: #8aabff;
 
-  --scene-1: #0a0c11;
-  --scene-2: #10131c;
+  --scene-1: #0a0c12;
+  --scene-2: #10131f;
+}
+
+/* ---------------------------------------------------------------------------
+   Depth. Kept out of the palette block above because the contrast test parses
+   that block for colour pairs and these are not pairs — they are shadows,
+   glows and gradients whose alpha is tuned per theme.
+
+   Light needs a real drop shadow to lift a card off paper. Dark cannot use one
+   (a black shadow on near-black is invisible), so elevation there is carried by
+   a lighter surface plus a hairline highlight along the top edge.
+--------------------------------------------------------------------------- */
+
+:root {
+  --shadow-sm: 0 1px 2px rgb(20 18 15 / 0.05), 0 1px 1px rgb(20 18 15 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(20 18 15 / 0.07), 0 2px 4px -2px rgb(20 18 15 / 0.05);
+  --shadow-lg: 0 18px 40px -12px rgb(20 18 15 / 0.16), 0 4px 12px -4px rgb(20 18 15 / 0.06);
+  --shadow-xl: 0 40px 80px -24px rgb(20 18 15 / 0.24), 0 8px 24px -8px rgb(20 18 15 / 0.08);
+
+  /* Hairline along a card's top edge. Light in light mode, lighter in dark. */
+  --edge-highlight: rgb(255 255 255 / 0.9);
+  /* Glass panels: a translucent fill that still reads as a surface. */
+  --glass-fill: rgb(255 255 255 / 0.62);
+  --glass-line: rgb(20 18 15 / 0.07);
+  /* Ambient colour washes behind the hero and section headers. */
+  --aurora-1: rgb(43 83 216 / 0.16);
+  --aurora-2: rgb(5 113 79 / 0.1);
+  --aurora-3: rgb(120 86 220 / 0.12);
+  --grain-opacity: 0.032;
+}
+
+[data-theme='dark'] {
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 10px -2px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 20px 48px -16px rgb(0 0 0 / 0.7);
+  --shadow-xl: 0 48px 96px -32px rgb(0 0 0 / 0.85);
+
+  --edge-highlight: rgb(255 255 255 / 0.07);
+  --glass-fill: rgb(23 26 35 / 0.6);
+  --glass-line: rgb(255 255 255 / 0.08);
+  --aurora-1: rgb(107 147 255 / 0.16);
+  --aurora-2: rgb(53 224 161 / 0.09);
+  --aurora-3: rgb(150 110 255 / 0.14);
+  --grain-opacity: 0.05;
 }
 
 @theme inline {
@@ -103,6 +150,17 @@
 
   --color-heat: var(--heat);
   --color-focus: var(--focus);
+
+  /*
+   * Headings resolve through one indirection so the Arabic locale can swap the
+   * display face. Instrument Serif has no Arabic glyphs — pointing an Arabic
+   * heading at it would silently fall back mid-page and look broken.
+   */
+  --font-title: var(--font-title-face);
+
+  --shadow-soft: var(--shadow-md);
+  --shadow-lift: var(--shadow-lg);
+  --shadow-deep: var(--shadow-xl);
 }
 
 @theme {
@@ -113,18 +171,20 @@
   --font-display: var(--font-instrument-serif), Georgia, 'Times New Roman', serif;
 
   /* Fluid display scale — clamp() so headings never need breakpoint overrides */
-  --text-display-sm: clamp(1.75rem, 1.2rem + 2.4vw, 2.75rem);
-  --text-display-sm--line-height: 1.1;
-  --text-display: clamp(2.25rem, 1.4rem + 4vw, 4.5rem);
-  --text-display--line-height: 1.04;
+  --text-display-sm: clamp(1.875rem, 1.2rem + 2.6vw, 3rem);
+  --text-display-sm--line-height: 1.08;
+  --text-display-sm--letter-spacing: -0.02em;
+  --text-display: clamp(2.5rem, 1.4rem + 4.6vw, 5rem);
+  --text-display--line-height: 1.02;
   --text-display--letter-spacing: -0.03em;
-  --text-display-lg: clamp(2.75rem, 1.5rem + 6vw, 6.5rem);
-  --text-display-lg--line-height: 0.98;
-  --text-display-lg--letter-spacing: -0.04em;
+  --text-display-lg: clamp(3rem, 1.6rem + 6vw, 6.25rem);
+  --text-display-lg--line-height: 0.94;
+  --text-display-lg--letter-spacing: -0.035em;
 
   /* Shape */
   --radius-card: 1rem;
   --radius-panel: 1.5rem;
+  --radius-frame: 2rem;
   --radius-pill: 999px;
 
   /* Motion — shared with the `motion` library via lib/motion.ts */
@@ -134,7 +194,50 @@
 
   /* Layout */
   --spacing-gutter: 1.25rem;
-  --container-page: 76rem;
+  --container-page: 78rem;
+
+  --animate-marquee: marquee 42s linear infinite;
+  --animate-drift: drift 22s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.6s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* The track renders its children twice; -50% lands exactly on the seam. */
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, -3%, 0) scale(1.08);
+  }
+}
+
+@keyframes diagram-flow {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* --------------------------------------------------------------------------- */
@@ -159,17 +262,19 @@
   }
 
   /*
-   * Body text resolves through one indirection so the Arabic locale can swap
-   * the entire UI face by redefining a single variable. Setting font-family on
-   * html[lang='ar'] directly would lose to the more specific `body` rule below.
-   * Digits stay Western in both locales — the audience is technical.
+   * Body text and headings each resolve through one indirection so the Arabic
+   * locale can swap both faces by redefining two variables. Setting font-family
+   * on html[lang='ar'] directly would lose to the more specific `body` rule
+   * below. Digits stay Western in both locales — the audience is technical.
    */
   :root {
     --font-ui: var(--font-sans);
+    --font-title-face: var(--font-display);
   }
 
   html[lang='ar'] {
     --font-ui: var(--font-arabic);
+    --font-title-face: var(--font-arabic);
   }
 
   body {
@@ -258,6 +363,10 @@
     --brand: #1e3a8a;
     --ai: #065f46;
     --heat: #7f1d1d;
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
   }
 
   @page {
@@ -278,6 +387,12 @@
   .cv-sheet {
     max-width: none;
     padding-inline: 0;
+  }
+
+  /* Decoration is for screens. */
+  .grain,
+  .aurora {
+    display: none !important;
   }
 
   /* Links print as plain text — a printed URL in brackets is noise on a CV. */
@@ -336,6 +451,26 @@
     color: var(--color-ink-subtle);
   }
 
+  /*
+   * A packet travelling an architecture connector. The path it is drawn on
+   * carries pathLength="100", so the dash below is 3% of the line whatever the
+   * line's real length, and one keyframe animates all of them.
+   */
+  .diagram-pulse {
+    stroke-dasharray: 3 97;
+    animation: diagram-flow 3s linear infinite;
+  }
+
+  /*
+   * Not merely slowed down: the global reduced-motion rule would freeze the
+   * dash mid-path and leave an unexplained coloured tick sitting on the line.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .diagram-pulse {
+      display: none;
+    }
+  }
+
   [data-highlighted-line] {
     background-color: color-mix(in oklab, var(--color-brand) 12%, transparent);
     border-inline-start: 2px solid var(--color-brand);
@@ -381,5 +516,220 @@
   .nums {
     font-variant-numeric: tabular-nums;
     font-family: var(--font-mono);
+  }
+
+  /*
+   * Display headings. The Latin face is Instrument Serif, which ships one
+   * weight and is already high-contrast; the Arabic face it swaps to is a sans
+   * that needs a heavier cut and no negative tracking to carry the same weight
+   * at the same size. Doing that here rather than per-component keeps every
+   * caller from having to know the locale.
+   */
+  .display-title {
+    font-family: var(--font-title-face);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  html[lang='ar'] .display-title {
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  /* Small uppercase label above a section heading. */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+
+  /* -------------------------------------------------------------------------
+     Surface treatments. These are what stop the page reading as a document:
+     a card has an edge, a lift and a light source, not just a 1px rule.
+  ------------------------------------------------------------------------- */
+
+  /*
+   * Raised panel. The ::before is the light catching the top edge — the single
+   * cheapest cue that an element sits above the page rather than being drawn
+   * on it, and the only elevation cue that survives a near-black background.
+   */
+  .panel {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+    background-color: var(--surface);
+    box-shadow: var(--shadow-md);
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset-inline: 1px;
+    top: 0;
+    height: 1px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, var(--edge-highlight), transparent);
+    pointer-events: none;
+  }
+
+  /*
+   * Modifiers for .panel, and the reason they exist rather than being written
+   * as `rounded-frame` or `shadow-deep` at the call site: these rules and
+   * Tailwind's generated utilities live in the same cascade layer at equal
+   * specificity, and .panel is declared last, so it would quietly win. Anything
+   * that overrides a property .panel sets has to be declared after it.
+   */
+  .panel-frame {
+    border-radius: var(--radius-frame);
+  }
+
+  .panel-deep {
+    box-shadow: var(--shadow-xl);
+  }
+
+  /* For a .panel whose children draw the fill — a gap-px divider grid, say. */
+  .panel-hollow {
+    background-color: transparent;
+  }
+
+  /* Translucent variant, for anything overlapping imagery or the 3D canvas. */
+  .glass {
+    position: relative;
+    border: 1px solid var(--glass-line);
+    background-color: var(--glass-fill);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  }
+
+  /* Interactive lift. Paired with .panel on anything clickable. */
+  .lift {
+    transition:
+      transform 0.4s var(--ease-out-quart),
+      box-shadow 0.4s var(--ease-out-quart),
+      border-color 0.4s var(--ease-out-quart);
+  }
+
+  .lift:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in oklab, var(--line-strong) 45%, transparent);
+  }
+
+  /*
+   * Film grain over the whole viewport. Fixed and non-interactive, at an
+   * opacity low enough to read as paper tooth rather than as noise. Inline SVG
+   * so there is no image request.
+   */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /*
+   * Ambient colour wash. Three blurred blobs that drift on a long loop; the
+   * whole layer is decorative and sits behind content at negative z-index.
+   */
+  .aurora {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .aurora::before,
+  .aurora::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    animation: var(--animate-drift);
+  }
+
+  .aurora::before {
+    inset-inline-start: -10%;
+    top: -30%;
+    width: 60%;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, var(--aurora-1), transparent 70%);
+  }
+
+  .aurora::after {
+    inset-inline-end: -15%;
+    top: -10%;
+    width: 55%;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, var(--aurora-3), transparent 70%);
+    animation-delay: -11s;
+  }
+
+  /* Hairline that fades out at both ends — a section divider with intent. */
+  .rule-fade {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(90deg, transparent, var(--line), transparent);
+  }
+
+  /* Gradient ink for a single emphasised word. */
+  .ink-gradient {
+    background: linear-gradient(
+      100deg,
+      var(--ink) 0%,
+      var(--brand) 55%,
+      color-mix(in oklab, var(--brand) 60%, var(--ai)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* A clipped gradient has no computed colour, so selection and forced-colours
+       modes need the real ink underneath. */
+    -webkit-text-fill-color: transparent;
+    /*
+     * background-clip:text paints only within the element's background box.
+     * Anything the glyphs put outside that box gets no background at all and
+     * renders as nothing, which is a letter with a piece sliced off. Two
+     * separate overflows have to be covered:
+     *
+     *   block — the display scale runs a line-height below 1, so descenders
+     *           hang below the content box (the tail of a "J").
+     *   inline — the box shrink-wraps to the advance width, but a serif "J"
+     *           has a negative left side bearing and overhangs its own origin.
+     *
+     * Pad the box out on both axes and pull the same amount back out of the
+     * layout so nothing moves.
+     */
+    padding-block-end: 0.18em;
+    margin-block-end: -0.18em;
+    padding-inline: 0.14em;
+    margin-inline: -0.14em;
+  }
+
+  @media (forced-colors: active) {
+    .ink-gradient {
+      -webkit-text-fill-color: currentColor;
+      color: currentColor;
+    }
+  }
+
+  /* Marquee track. Children are rendered twice; the keyframe shifts by -50%. */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: var(--animate-marquee);
+  }
+
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .marquee-host:hover .marquee-track {
+    animation-play-state: paused;
   }
 }

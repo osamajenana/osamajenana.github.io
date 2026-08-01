@@ -14,10 +14,7 @@ export async function FeaturedWork({ locale }: { locale: Locale }) {
     <section aria-labelledby="featured-heading" className="border-t border-line">
       <div className="container-page py-20 sm:py-28">
         <div className="flex flex-wrap items-end justify-between gap-6">
-          <h2
-            id="featured-heading"
-            className="text-display-sm font-semibold tracking-tight text-ink"
-          >
+          <h2 id="featured-heading" className="display-title text-display-sm text-ink">
             {t('featuredTitle')}
           </h2>
           <ButtonLink href="/work" variant="secondary" size="sm">
@@ -25,7 +22,7 @@ export async function FeaturedWork({ locale }: { locale: Locale }) {
           </ButtonLink>
         </div>
 
-        <ul className="mt-12 space-y-5">
+        <ul className="mt-12 space-y-6">
           {featured.map((project, index) => (
             <Reveal
               as="li"

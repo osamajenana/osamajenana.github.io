@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PrintButton } from '@/components/cv/PrintButton';
-import { ButtonAnchor } from '@/components/ui/Button';
+import { CvDownloadButton } from '@/components/ui/Button';
 import { resume, RESUME_UPDATED } from '@/content/resume';
 import { owner } from '@/content/site';
 import type { Locale } from '@/i18n/routing';
@@ -42,10 +42,8 @@ export default async function CvPage({ params }: { params: Promise<{ locale: Loc
         <p className="mt-4 max-w-2xl text-lg text-ink-muted">{t('lead')}</p>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          {/* The PDF route emits an ATS-parseable English CV. */}
-          <ButtonAnchor href="/api/cv" variant="primary" target="_self" download>
-            {t('download')}
-          </ButtonAnchor>
+          {/* The designed PDF in public/ — the document that actually goes out. */}
+          <CvDownloadButton variant="primary">{t('download')}</CvDownloadButton>
           <PrintButton />
           <span className="nums text-xs text-ink-subtle">
             {t('updated')}: {RESUME_UPDATED}

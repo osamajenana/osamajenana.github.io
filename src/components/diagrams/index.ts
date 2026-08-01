@@ -374,6 +374,94 @@ const welfare: DiagramSpec = {
   ],
 };
 
+/**
+ * The production stack, for the home page section.
+ *
+ * Not tied to one project: this is the shape every system on this site ends up
+ * having, which is the claim the section makes.
+ */
+export const stack: DiagramSpec = {
+  caption: {
+    en: 'A request arrives at nginx, the application answers it, and everything that would make the answer slow — queued jobs, model calls — happens off to the side. The WebSocket layer pushes the result back without the client asking again.',
+    ar: 'الطلب يصل إلى nginx، والتطبيق يجيبه، وكل ما قد يُبطئ الجواب — المهام في الطابور ونداءات الموديل — يجري جانباً. وطبقة WebSocket تدفع النتيجة للعميل دون أن يسأل مرة أخرى.',
+  },
+  nodes: [
+    {
+      id: 'client',
+      label: 'Client',
+      sub: { en: 'web · mobile · WhatsApp', ar: 'ويب · موبايل · واتساب' },
+      col: 0,
+      row: 0,
+      tone: 'edge',
+    },
+    {
+      id: 'nginx',
+      label: 'nginx',
+      sub: { en: 'TLS · reverse proxy', ar: 'TLS · بروكسي عكسي' },
+      col: 1,
+      row: 0,
+      tone: 'neutral',
+    },
+    {
+      id: 'app',
+      label: 'Laravel / Next.js',
+      sub: { en: 'application layer', ar: 'طبقة التطبيق' },
+      col: 2,
+      row: 0,
+      tone: 'brand',
+    },
+    {
+      id: 'mysql',
+      label: 'MySQL',
+      sub: { en: '78 models, one system', ar: '78 موديلاً في نظام واحد' },
+      col: 3,
+      row: 0,
+      tone: 'neutral',
+    },
+    {
+      id: 'redis',
+      label: 'Redis + Queue',
+      sub: { en: 'off the request path', ar: 'خارج مسار الطلب' },
+      col: 2,
+      row: 1,
+      tone: 'neutral',
+    },
+    {
+      id: 'ai',
+      label: 'AI layer',
+      sub: { en: 'provider-agnostic', ar: 'مستقلة عن المزوّد' },
+      col: 3,
+      row: 1,
+      tone: 'ai',
+    },
+    {
+      id: 'reverb',
+      label: 'Reverb (WS)',
+      sub: { en: 'server push', ar: 'دفع من السيرفر' },
+      col: 1,
+      row: 2,
+      tone: 'brand',
+    },
+    {
+      id: 'board',
+      label: 'Operator board',
+      sub: { en: 'live, no refresh', ar: 'حيّة بلا تحديث' },
+      col: 0,
+      row: 2,
+      tone: 'edge',
+    },
+  ],
+  edges: [
+    { from: 'client', to: 'nginx' },
+    { from: 'nginx', to: 'app', label: { en: 'HTTPS', ar: 'HTTPS' } },
+    { from: 'app', to: 'mysql' },
+    { from: 'app', to: 'redis', async: true },
+    { from: 'redis', to: 'ai', async: true },
+    { from: 'app', to: 'reverb' },
+    { from: 'reverb', to: 'board' },
+  ],
+};
+
 export const diagrams: Record<string, DiagramSpec> = {
   mesh,
   'whatsapp-commerce': whatsappCommerce,

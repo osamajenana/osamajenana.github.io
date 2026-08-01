@@ -11,6 +11,7 @@ import { owner, resolveNavItems, SITE_URL, seoKeywords, socials } from '@/conten
 import { directionOf, localeTags, routing } from '@/i18n/routing';
 import { fontVariables } from '@/lib/fonts';
 import { publishedPostCount } from '@/lib/posts';
+import { themeBootstrapScript } from '@/lib/theme';
 
 import '@/styles/globals.css';
 
@@ -21,10 +22,13 @@ export function generateStaticParams() {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fbfbfc' },
-    { media: '(prefers-color-scheme: dark)', color: '#08090c' },
-  ],
+  /**
+   * One value, not a prefers-color-scheme pair. The site opens dark for
+   * everybody regardless of the OS setting, so a light chrome colour keyed off
+   * the OS would frame a dark page in a white bar. Tracks --canvas in the dark
+   * palette in globals.css.
+   */
+  themeColor: '#08090e',
 };
 
 export async function generateMetadata({
@@ -101,6 +105,17 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh antialiased">
+        {/*
+          Runs before anything below it paints, so the page never renders one
+          frame in the wrong theme. Emitted by this server component rather than
+          from inside the provider: a <script> created during a client render is
+          both useless (it would not execute) and something React 19 warns about.
+        */}
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: themeBootstrapScript }}
+        />
+
         <ThemeProvider>
           <NextIntlClientProvider>
             <a
@@ -111,7 +126,10 @@ export default async function LocaleLayout({
             </a>
             <Header navItems={resolveNavItems(publishedPostCount)} />
             {children}
-            <Footer />
+            <Footer locale={locale} />
+            {/* Film grain over the whole page. Fixed, non-interactive, and the
+                last thing painted so it sits over every section. */}
+            <div aria-hidden className="grain" />
           </NextIntlClientProvider>
         </ThemeProvider>
 

@@ -69,11 +69,20 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </blockquote>
     ),
     hr: (props) => <hr className="my-12 border-line" {...props} />,
-    // rehype-pretty-code wraps highlighted blocks in <pre><code>; keepBackground
-    // is off so the surface colour comes from the theme, not from Shiki.
+    /*
+     * rehype-pretty-code wraps highlighted blocks in <pre><code>; keepBackground
+     * is off so the surface colour comes from the theme, not from Shiki.
+     *
+     * That surface is --surface rather than --raised on purpose. The Shiki
+     * themes are `github-light` and `github-dark-dimmed`, whose token palettes
+     * assume they are painted on their own near-white / near-black background;
+     * on the warmer --raised, github-light's function-name violet measures
+     * 4.39:1 and fails AA. --surface is the closest thing the palette has to
+     * what those themes were designed against, and clears every token.
+     */
     pre: ({ children, ...props }) => (
       <pre
-        className="mb-6 overflow-x-auto rounded-card border border-line bg-raised p-4 text-[13px] leading-relaxed"
+        className="mb-6 overflow-x-auto rounded-card border border-line bg-surface p-4 text-[13px] leading-relaxed"
         // Code is left-to-right even inside an RTL page.
         dir="ltr"
         {...props}

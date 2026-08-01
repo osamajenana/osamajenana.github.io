@@ -21,7 +21,18 @@ module.exports = {
 
       env: {
         NODE_ENV: 'production',
-        // nginx is the only thing that talks to this port; it is not exposed.
+        /**
+         * The one place this port is written for the app itself; deploy.sh
+         * reads it back from here for its health checks, so they cannot drift.
+         *
+         * The VPS runs other projects. If 3100 is taken, change it here AND in
+         * the `portfolio_app` upstream in deploy/nginx.conf — deploy.sh refuses
+         * to start if the port belongs to another process, but it cannot know
+         * what nginx is pointed at.
+         *
+         * HOSTNAME binds to loopback only, so this is reachable through nginx
+         * and not from the internet.
+         */
         PORT: 3100,
         HOSTNAME: '127.0.0.1',
       },

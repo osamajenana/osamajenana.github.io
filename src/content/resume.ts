@@ -5,15 +5,17 @@ import type { ResumeInput } from '@/lib/schemas';
 /**
  * The only place résumé content is authored. It drives:
  *   - the /cv page (screen + print stylesheet)
- *   - the ATS-friendly PDF at /api/cv
  *   - the About page's experience and education sections
+ *
+ * It does NOT drive the downloadable PDF: that is the designed document in
+ * public/cv, kept by hand. Keep this in step with it when either changes.
  *
  * Selected projects are referenced by slug from the project registry, so a
  * project's name, period and stack can never drift between site and CV.
  */
 
 const raw: ResumeInput = {
-  name: { en: owner.fullName, ar: 'أسامة رائد جنانة' },
+  name: { en: owner.fullName, ar: 'أسامة رائد جنينة' },
   headline: {
     en: 'Full-Stack Product Engineer · AI-Powered Systems',
     ar: 'مهندس منتجات Full-Stack · أنظمة مدعومة بالذكاء الاصطناعي',
