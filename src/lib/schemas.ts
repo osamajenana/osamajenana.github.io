@@ -282,6 +282,53 @@ export type CaseStudy = z.infer<typeof caseStudy>;
 /** Authored shape — `lessons` is optional before defaults are applied. */
 export type CaseStudyInput = z.input<typeof caseStudy>;
 
+// --- legal documents --------------------------------------------------------
+
+/**
+ * Privacy policy, terms of service and data deletion instructions.
+ *
+ * These are validated like every other content type for one specific reason: a
+ * platform reviewer reads both language versions, and a section that exists in
+ * English but not in Arabic is the kind of gap that fails a Business
+ * Verification. `localized` makes a half-translated clause a build failure.
+ *
+ * A section carries prose, a bullet list, a term/detail table, or any
+ * combination — the three legal documents genuinely need all three shapes, and
+ * an empty section is refused below.
+ */
+export const legalRow = z.object({
+  term: localized,
+  detail: localized,
+});
+export type LegalRow = z.infer<typeof legalRow>;
+
+export const legalSection = z
+  .object({
+    /** Stable fragment id. Anchors survive rewording; headings do not. */
+    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'id must be lowercase kebab-case'),
+    heading: localized,
+    body: localizedProse.optional(),
+    items: z.array(localized).default([]),
+    rows: z.array(legalRow).default([]),
+  })
+  .refine((s) => s.body !== undefined || s.items.length > 0 || s.rows.length > 0, {
+    message: 'a section must carry prose, a list or a table',
+    path: ['body'],
+  });
+export type LegalSection = z.infer<typeof legalSection>;
+
+export const legalDocument = z.object({
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'slug must be lowercase kebab-case'),
+  title: localized,
+  lead: localized,
+  /** Shown as "Last updated". Reviewers check that a policy is not stale. */
+  updatedAt: z.iso.date(),
+  sections: z.array(legalSection).min(1),
+});
+export type LegalDocument = z.infer<typeof legalDocument>;
+/** Authored shape — `items` and `rows` are optional before defaults. */
+export type LegalDocumentInput = z.input<typeof legalDocument>;
+
 // --- blog -------------------------------------------------------------------
 
 /**

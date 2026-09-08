@@ -90,10 +90,16 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
           The nav sits in its own bordered track rather than floating loose in
           the bar — it gives the active pill something to be inset into, which is
           what makes the current page read as selected rather than merely tinted.
+
+          It appears at `lg`, not `md`. Six pills plus the wordmark plus the
+          language and theme controls measure ~795px, and a 768px viewport has
+          728px of gutter-inset room — so at `md` the bar overflowed and the
+          page scrolled sideways. The drawer covers that band instead. Anything
+          added to `navItems` has to be re-measured against this.
         */}
         <nav
           aria-label={t('menu')}
-          className="hidden items-center gap-0.5 rounded-pill border border-line bg-surface/60 p-1 shadow-sm backdrop-blur md:flex"
+          className="hidden items-center gap-0.5 rounded-pill border border-line bg-surface/60 p-1 shadow-sm backdrop-blur lg:flex"
         >
           {navItems.map((item) => (
             <Link
@@ -137,7 +143,7 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? t('closeMenu') : t('menu')}
-            className="grid size-9 place-items-center rounded-full border border-line text-ink-muted md:hidden"
+            className="grid size-9 place-items-center rounded-full border border-line text-ink-muted lg:hidden"
           >
             <span className="relative block h-3 w-4">
               <span
@@ -169,8 +175,8 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
         id="mobile-nav"
         inert={!open}
         className={cn(
-          'overflow-hidden border-line bg-canvas/95 backdrop-blur-xl transition-[max-height,opacity] duration-300 md:hidden',
-          open ? 'max-h-96 border-b opacity-100' : 'pointer-events-none max-h-0 opacity-0',
+          'overflow-hidden border-line bg-canvas/95 backdrop-blur-xl transition-[max-height,opacity] duration-300 lg:hidden',
+          open ? 'max-h-[32rem] border-b opacity-100' : 'pointer-events-none max-h-0 opacity-0',
         )}
       >
         <nav className="container-page flex flex-col gap-1 py-4" aria-label={t('menu')}>

@@ -8,7 +8,7 @@ import { Portrait } from '@/components/ui/Portrait';
 import { Reveal } from '@/components/ui/Reveal';
 import { Tag } from '@/components/ui/Tag';
 import { resume } from '@/content/resume';
-import { owner, pillars } from '@/content/site';
+import { company, owner, pillars } from '@/content/site';
 import type { Locale } from '@/i18n/routing';
 import { getArchive, getWorkGrid } from '@/lib/projects';
 import type { Pillar } from '@/lib/schemas';
@@ -75,6 +75,28 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </div>
           </div>
         </Reveal>
+
+        {/*
+          ---- the legal entity ----
+          Added, not substituted: the profile above is still the person, and a
+          platform reviewer still has to be able to find the registered company
+          without opening the footer.
+        */}
+        <section aria-labelledby="entity-heading">
+          <SectionTitle id="entity-heading">{t('entity')}</SectionTitle>
+          <div className="max-w-3xl space-y-4">
+            <p className="text-lg leading-relaxed text-ink-muted">
+              {t('entityBody', {
+                company: company.legalName[locale],
+                country: company.country[locale],
+                registration: company.registrationNumber,
+                number: company.companyNumber,
+                address: company.address[locale],
+              })}
+            </p>
+            <p className="leading-relaxed text-ink-subtle">{t('entityNote')}</p>
+          </div>
+        </section>
 
         {/* ---- what I do ---- */}
         <section aria-labelledby="focus-heading">

@@ -5,7 +5,6 @@ import type { Localized, Pillar } from '@/lib/schemas';
  *
  * PENDING owner input (tracked in the project plan, section 13):
  *   - `linkedin` is null until the profile URL is supplied.
- *   - `email` may move to hello@osamajenana.com once the mailbox exists.
  *   - a second (Gulf) WhatsApp number may be added alongside the current one.
  */
 
@@ -22,6 +21,57 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://osamajenan
   /\/+$/,
   '',
 );
+
+/**
+ * The registered legal entity behind this site.
+ *
+ * Every string here is transcribed from the commercial registration
+ * certificate and must stay byte-identical to it. Meta's Business
+ * Verification and App Review compare the website against that document
+ * literally: a reworded address, a translated street name or a tidied-up
+ * company name is a rejection, not a style choice. Do not "improve" these
+ * values — if the certificate changes, change them here and nowhere else.
+ *
+ * `locality` is the only derived string: a short form for inline use where
+ * the full address would not fit (the hero's role line, the CV header). It is
+ * a label, never a substitute for `address`, which is what the footer, the
+ * contact page and the JSON-LD render.
+ */
+export const company = {
+  legalName: {
+    en: 'Osama Raed Jenana Technology Company',
+    ar: 'شركة أسامة رائد جنينة للتقنية',
+  } satisfies Localized,
+  address: {
+    en: 'Gaza – Al-Rimal Al-Shamali – near Palestine Stadium, Palestine',
+    ar: 'غزة – الرمال الشمالي – بالقرب من ملعب فلسطين، فلسطين',
+  } satisfies Localized,
+  /** Split form, for schema.org PostalAddress. Same words as `address`. */
+  postalAddress: {
+    streetAddress: 'Al-Rimal Al-Shamali – near Palestine Stadium',
+    addressLocality: 'Gaza',
+    addressCountry: 'PS',
+  },
+  /** Short display form for inline use. Never replaces `address`. */
+  locality: {
+    en: 'Gaza, Palestine',
+    ar: 'غزة، فلسطين',
+  } satisfies Localized,
+  companyNumber: '563493311',
+  registrationNumber: '39679',
+  /** The registered company line. Distinct from the WhatsApp number below. */
+  phone: {
+    /** E.164, for tel: links and JSON-LD. */
+    e164: '+970592903278',
+    display: '+970 59 290 3278',
+  },
+  email: 'info@osamajenana.com',
+  /** Registered in Palestine; the year the entity was incorporated is on file. */
+  country: {
+    en: 'Palestine',
+    ar: 'فلسطين',
+  } satisfies Localized,
+} as const;
 
 export const owner = {
   /** Legal name — used in JSON-LD, the CV, and the copyright line. */
@@ -46,12 +96,14 @@ export const owner = {
     en: 'AI-Powered Systems',
     ar: 'أنظمة مدعومة بالذكاء الاصطناعي',
   } satisfies Localized,
-  /** Remote-first by choice: no country is published anywhere on the site. */
-  location: {
-    en: 'Remote · Worldwide',
-    ar: 'عن بُعد · حول العالم',
-  } satisfies Localized,
-  email: 'ojenana11@gmail.com',
+  /**
+   * Short locality for inline use — the hero's role line and the CV header.
+   * The full registered address lives on `company.address`, which is what the
+   * footer's legal block, the contact page and the JSON-LD render.
+   */
+  location: company.locality,
+  /** The company mailbox. Also the contact form's fallback recipient. */
+  email: company.email,
   whatsapp: {
     /** E.164 digits only, for wa.me links. */
     e164: '972592903278',
@@ -137,11 +189,28 @@ export const pillars: Record<
  * resolves this against the real post count and passes the result to the header.
  */
 export const navItems = [
+  // The product leads: it is the thing the company sells, and the page a
+  // platform reviewer or a prospective client is looking for first.
+  { key: 'platform', href: '/platform' },
   { key: 'work', href: '/work' },
   { key: 'about', href: '/about' },
   { key: 'services', href: '/services' },
   { key: 'blog', href: '/blog', minPosts: 1 },
   { key: 'contact', href: '/contact' },
+] as const;
+
+/**
+ * Policy pages, in the order they appear in the footer.
+ *
+ * Meta's App Review will not accept a submission whose privacy policy and data
+ * deletion instructions are not reachable from the site itself, so these are a
+ * shared registry rather than three hand-written footer links: the footer, the
+ * sitemap and the page routes all read from here and cannot drift apart.
+ */
+export const legalItems = [
+  { key: 'privacy', href: '/privacy' },
+  { key: 'terms', href: '/terms' },
+  { key: 'dataDeletion', href: '/data-deletion' },
 ] as const;
 
 export type NavItem = { key: string; href: string };
@@ -159,6 +228,11 @@ export function resolveNavItems(publishedPosts: number): NavItem[] {
  * ATS filters actually search for, regardless of the poetic H1 above it.
  */
 export const seoKeywords = [
+  'Osama Raed Jenana Technology Company',
+  'WhatsApp Business Platform',
+  'WhatsApp Cloud API',
+  'Meta Tech Provider',
+  'Conversational AI',
   'Full-Stack Engineer',
   'Product Engineer',
   'Laravel Developer',

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 
+import { legalDocuments } from '@/content/legal';
 import { SITE_URL } from '@/content/site';
 import { routing } from '@/i18n/routing';
 import { getPosts } from '@/lib/posts';
@@ -26,12 +27,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticPaths: Entry[] = [
     { path: '', priority: 1, changeFrequency: 'monthly' },
+    { path: '/platform', priority: 0.9, changeFrequency: 'monthly' },
     { path: '/work', priority: 0.9, changeFrequency: 'monthly' },
     { path: '/work/archive', priority: 0.4, changeFrequency: 'yearly' },
     { path: '/about', priority: 0.7, changeFrequency: 'yearly' },
     { path: '/services', priority: 0.8, changeFrequency: 'yearly' },
     { path: '/cv', priority: 0.7, changeFrequency: 'monthly' },
     { path: '/contact', priority: 0.6, changeFrequency: 'yearly' },
+    /**
+     * The policy pages carry a low priority but must be indexable: Meta's
+     * review checks that a privacy policy and data deletion instructions are
+     * publicly reachable, and `lastModified` comes from the documents
+     * themselves so a policy edit is reflected without touching this file.
+     */
+    ...legalDocuments.map((doc) => ({
+      path: `/${doc.slug}`,
+      priority: 0.3,
+      changeFrequency: 'yearly' as const,
+      lastModified: doc.updatedAt,
+    })),
     // Listed only once there is something to read there.
     ...(posts.length > 0
       ? [{ path: '/blog', priority: 0.7, changeFrequency: 'weekly' as const }]

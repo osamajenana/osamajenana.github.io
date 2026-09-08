@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { owner, resolveNavItems, SITE_URL, seoKeywords, socials } from '@/content/site';
+import { company, owner, resolveNavItems, SITE_URL, seoKeywords, socials } from '@/content/site';
 import { directionOf, localeTags, routing } from '@/i18n/routing';
 import { fontVariables } from '@/lib/fonts';
 import { publishedPostCount } from '@/lib/posts';
@@ -51,6 +51,9 @@ export async function generateMetadata({
     keywords: seoKeywords,
     authors: [{ name: owner.fullName, url: SITE_URL }],
     creator: owner.fullName,
+    // The entity that publishes the site, as distinct from the person who
+    // writes it. Platform reviewers read this pair together.
+    publisher: company.legalName[locale],
     alternates: {
       canonical: `/${locale}`,
       languages: {
@@ -61,7 +64,7 @@ export async function generateMetadata({
     },
     openGraph: {
       type: 'website',
-      siteName: owner.shortName,
+      siteName: company.legalName[locale],
       title: t('titleDefault'),
       description: t('description'),
       url: `/${locale}`,
@@ -133,22 +136,77 @@ export default async function LocaleLayout({
           </NextIntlClientProvider>
         </ThemeProvider>
 
-        {/* Identity graph for search engines — the site is the canonical source. */}
+        {/*
+          Identity graph for search engines — the site is the canonical source.
+
+          Two nodes, linked both ways: the registered company that publishes
+          the site, and the person who founded it. The Organization node is
+          what a platform reviewer's automated check reads, so its `legalName`,
+          `address` and identifiers are the certificate's values verbatim,
+          fed from `company` rather than retyped here.
+        */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
-              '@type': 'Person',
-              name: owner.fullName,
-              alternateName: owner.shortName,
-              url: SITE_URL,
-              email: `mailto:${owner.email}`,
-              jobTitle: owner.role.en,
-              description: owner.specialism.en,
-              sameAs: [socials.github, socials.githubOrg, socials.x, socials.linkedin].filter(
-                (link): link is string => Boolean(link),
-              ),
+              '@graph': [
+                {
+                  '@type': 'Organization',
+                  '@id': `${SITE_URL}/#organization`,
+                  name: company.legalName.en,
+                  legalName: company.legalName.en,
+                  alternateName: company.legalName.ar,
+                  url: SITE_URL,
+                  email: company.email,
+                  telephone: company.phone.e164,
+                  address: {
+                    '@type': 'PostalAddress',
+                    streetAddress: company.postalAddress.streetAddress,
+                    addressLocality: company.postalAddress.addressLocality,
+                    addressCountry: company.postalAddress.addressCountry,
+                  },
+                  identifier: [
+                    {
+                      '@type': 'PropertyValue',
+                      name: 'Company number',
+                      value: company.companyNumber,
+                    },
+                    {
+                      '@type': 'PropertyValue',
+                      name: 'Commercial registration number',
+                      value: company.registrationNumber,
+                    },
+                  ],
+                  founder: { '@id': `${SITE_URL}/#person` },
+                  contactPoint: [
+                    {
+                      '@type': 'ContactPoint',
+                      contactType: 'customer support',
+                      email: company.email,
+                      telephone: company.phone.e164,
+                      availableLanguage: ['en', 'ar'],
+                    },
+                  ],
+                  sameAs: [socials.github, socials.githubOrg, socials.x, socials.linkedin].filter(
+                    (link): link is string => Boolean(link),
+                  ),
+                },
+                {
+                  '@type': 'Person',
+                  '@id': `${SITE_URL}/#person`,
+                  name: owner.fullName,
+                  alternateName: owner.shortName,
+                  url: SITE_URL,
+                  email: `mailto:${owner.email}`,
+                  jobTitle: owner.role.en,
+                  description: owner.specialism.en,
+                  worksFor: { '@id': `${SITE_URL}/#organization` },
+                  sameAs: [socials.github, socials.githubOrg, socials.x, socials.linkedin].filter(
+                    (link): link is string => Boolean(link),
+                  ),
+                },
+              ],
             }),
           }}
         />

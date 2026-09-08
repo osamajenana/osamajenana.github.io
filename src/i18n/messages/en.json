@@ -1,11 +1,12 @@
 {
   "meta": {
-    "titleDefault": "Osama Jenana — Full-Stack Product Engineer",
-    "titleTemplate": "%s — Osama Jenana",
-    "description": "Full-Stack Product Engineer building complete products end to end — Laravel, Vue, Next.js, Node, Flutter and AI. 40+ production systems across web, mobile and infrastructure."
+    "titleDefault": "Osama Raed Jenana Technology Company — Software Products & AI-Powered Systems",
+    "titleTemplate": "%s — Osama Raed Jenana Technology Company",
+    "description": "Osama Raed Jenana Technology Company is a registered software house in Gaza, Palestine, building complete products end to end — WhatsApp Business Platform integrations, multi-tenant web systems and AI automation on Laravel, Vue, Next.js, Node and Flutter. 40+ production systems."
   },
   "nav": {
     "home": "Home",
+    "platform": "Platform",
     "work": "Work",
     "about": "About",
     "services": "Services",
@@ -31,7 +32,7 @@
     "tagline": "I build complete products end to end — interface, API, database, mobile client and the server it all runs on — and I make them intelligent.",
     "role": "Full-Stack Product Engineer",
     "stack": "Laravel · Vue · Next.js · Node · Flutter · AI",
-    "availability": "Available for remote roles and selected freelance work",
+    "entity": "A registered software house building products, integrations and AI systems",
     "ctaWork": "See the work",
     "ctaCv": "Download CV",
     "portraitAlt": "Osama Jenana",
@@ -127,6 +128,9 @@
     "education": "Education",
     "skills": "Skills",
     "getInTouch": "Get in touch",
+    "entity": "The legal entity",
+    "entityBody": "The work on this site is delivered through {company} — a technology company registered in {country} under commercial registration number {registration}, company number {number}. Contracts, invoices, data processing agreements and platform partnerships are all held in the company's name, and its registered office is at {address}.",
+    "entityNote": "It is still the same pair of hands writing the code. The company is what makes it possible to sign an agreement, hold a Meta Tech Provider relationship and process client data under a named, accountable entity rather than a personal account.",
     "stats": {
       "years": "Years shipping software",
       "systems": "Systems on this site",
@@ -146,6 +150,8 @@
     "sent": "Thanks — your message reached me. I will reply within a day.",
     "orEmail": "Or email directly",
     "orWhatsapp": "Or message on WhatsApp",
+    "office": "Registered office",
+    "officeNote": "Correspondence and legal notices go to the registered address above. Support and project enquiries are answered by email or WhatsApp, in English or Arabic.",
     "errors": {
       "nameRequired": "Please tell me your name.",
       "emailInvalid": "That email address does not look right.",
@@ -169,10 +175,43 @@
     "updated": "Last updated",
     "moreOnSite": "Full case studies and the other 35+ projects are on the site."
   },
+  "platform": {
+    "title": "Platform",
+    "eyebrow": "Product",
+    "lead": "An AI-assisted WhatsApp conversation platform for businesses whose customers already message them — one inbox, one catalogue, one set of rules, and a model that answers when it should and steps aside when it should not.",
+    "whatItDoes": "What it does",
+    "whoItIsFor": "Who it is for",
+    "howItWorks": "How it works",
+    "compliance": "Platform compliance",
+    "complianceBody": "The platform is built on the official Meta WhatsApp Business Platform (Cloud API) and the Meta Graph API. It respects the 24-hour customer service window in code rather than by staff discipline: outside the window only templates approved by Meta are sent, opt-out is honoured on the first request, and every message the platform sends is attributable to a business the customer chose to contact.",
+    "stack": "Built on",
+    "ctaTitle": "See whether it fits your operation",
+    "ctaBody": "The fastest way to find out is to describe how customers reach you today and where the work piles up. You get an honest answer about fit, not a demo script.",
+    "ctaPrimary": "Talk to us",
+    "ctaSecondary": "Message on WhatsApp",
+    "step": "Step {number}"
+  },
+  "legal": {
+    "updated": "Last updated",
+    "issuedBy": "Issued by",
+    "contactLine": "Questions about this document go to:",
+    "policies": "Policies",
+    "contents": "Contents"
+  },
   "footer": {
     "rights": "All rights reserved.",
-    "builtWith": "Built with Next.js. Self-hosted on my own VPS.",
-    "backToTop": "Back to top"
+    "builtWith": "Built with Next.js. Self-hosted on our own VPS.",
+    "backToTop": "Back to top",
+    "legal": "Legal",
+    "legalName": "Legal name",
+    "address": "Registered address",
+    "companyNumber": "Company number",
+    "registrationNumber": "Commercial registration",
+    "phone": "Phone",
+    "email": "Email",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "dataDeletion": "Data Deletion"
   },
   "notFound": {
     "title": "This page does not exist",

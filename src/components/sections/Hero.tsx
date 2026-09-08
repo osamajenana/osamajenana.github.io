@@ -71,10 +71,16 @@ export async function Hero({ locale }: { locale: Locale }) {
             </div>
           </HeroFade>
 
+          {/*
+            The line above the name says what the entity is, not what it is
+            looking for. A registered company describing itself as available
+            for roles is the single fastest way to lose a platform reviewer
+            comparing this page against a commercial registration certificate.
+          */}
           <HeroFade className="mb-6">
             <p className="flex items-center gap-2.5 text-sm font-medium text-ink-muted">
               <StatusDot tone="live" />
-              {t('availability')}
+              {t('entity')}
             </p>
           </HeroFade>
 

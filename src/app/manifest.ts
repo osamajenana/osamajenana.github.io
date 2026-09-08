@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-import { owner } from '@/content/site';
+import { company, owner } from '@/content/site';
 
 /**
  * Minimal web app manifest. The site is not an installable app, but a manifest
@@ -9,9 +9,9 @@ import { owner } from '@/content/site';
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${owner.fullName} — ${owner.role.en}`,
+    name: company.legalName.en,
     short_name: owner.shortName,
-    description: owner.specialism.en,
+    description: `${owner.role.en} · ${owner.specialism.en}`,
     start_url: '/en',
     display: 'browser',
     background_color: '#08090c',

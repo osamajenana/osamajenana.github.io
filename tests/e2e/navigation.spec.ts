@@ -77,7 +77,29 @@ test.describe('locale and direction', () => {
   });
 
   test('no page scrolls horizontally', async ({ page }) => {
-    for (const path of ['/en', '/ar', '/en/work', '/ar/work/sila', '/en/cv']) {
+    // Thirteen full page loads, each waited to network idle. That is genuinely
+    // slow rather than stuck, and it exceeded the default budget once the
+    // company pages were added to the list.
+    test.slow();
+
+    for (const path of [
+      '/en',
+      '/ar',
+      '/en/work',
+      '/ar/work/sila',
+      '/en/cv',
+      // Added with the company pages. The sixth nav item pushed the header
+      // past a 768px viewport, which is why the desktop nav now appears at
+      // `lg` rather than `md` — this is the test that catches the next one.
+      '/en/platform',
+      '/ar/platform',
+      '/en/privacy',
+      '/ar/privacy',
+      '/en/terms',
+      '/ar/terms',
+      '/en/data-deletion',
+      '/ar/data-deletion',
+    ]) {
       await page.goto(path);
       await page.waitForLoadState('networkidle');
 
@@ -268,5 +290,148 @@ test.describe('metadata', () => {
 
     expect(alternates).toContain('en');
     expect(alternates).toContain('ar');
+  });
+});
+
+test.describe('registered entity', () => {
+  /**
+   * Meta's Business Verification compares the site against the commercial
+   * registration certificate literally. These are the exact strings on that
+   * document; a rewording anywhere in the site is a rejection, so it has to be
+   * a failing test first.
+   */
+  const LEGAL_NAME_EN = 'Osama Raed Jenana Technology Company';
+  const LEGAL_NAME_AR = 'شركة أسامة رائد جنينة للتقنية';
+  const ADDRESS_EN = 'Gaza – Al-Rimal Al-Shamali – near Palestine Stadium, Palestine';
+  const ADDRESS_AR = 'غزة – الرمال الشمالي – بالقرب من ملعب فلسطين، فلسطين';
+
+  test('publishes the legal name and address in the English footer', async ({ page }) => {
+    await page.goto('/en');
+    const footer = page.getByRole('contentinfo');
+
+    await expect(footer).toContainText(`© ${new Date().getFullYear()} ${LEGAL_NAME_EN}`);
+    await expect(footer).toContainText(ADDRESS_EN);
+    await expect(footer).toContainText('563493311');
+    await expect(footer).toContainText('39679');
+    await expect(footer).toContainText('+970 59 290 3278');
+    await expect(footer).toContainText('info@osamajenana.com');
+  });
+
+  test('publishes the same identity in Arabic', async ({ page }) => {
+    await page.goto('/ar');
+    const footer = page.getByRole('contentinfo');
+
+    await expect(footer).toContainText(LEGAL_NAME_AR);
+    await expect(footer).toContainText(ADDRESS_AR);
+    await expect(footer).toContainText('563493311');
+  });
+
+  test('no longer publishes the personal address anywhere', async ({ page }) => {
+    for (const path of ['/en', '/ar', '/en/contact', '/ar/contact', '/en/cv']) {
+      await page.goto(path);
+      await expect(page.locator('body')).not.toContainText('ojenana11@gmail.com');
+    }
+  });
+
+  test('gives the contact page the full registered office', async ({ page }) => {
+    await page.goto('/en/contact');
+    const office = page.getByRole('main').locator('address');
+
+    await expect(office).toContainText(LEGAL_NAME_EN);
+    await expect(office).toContainText(ADDRESS_EN);
+    // The WhatsApp route is unchanged — it is the one link that must not move.
+    // Scoped to main: the footer carries the same link in its contact column.
+    await expect(
+      page.getByRole('main').getByRole('link', { name: '+972 59 290 3278' }),
+    ).toHaveAttribute('href', 'https://wa.me/972592903278');
+  });
+
+  test('exposes an Organization node with a postal address', async ({ page }) => {
+    await page.goto('/en');
+
+    const graphs = await page
+      .locator('script[type="application/ld+json"]')
+      .evaluateAll((nodes) => nodes.map((node) => JSON.parse(node.textContent ?? '{}')));
+
+    const nodes = graphs.flatMap((graph) => graph['@graph'] ?? [graph]);
+    const org = nodes.find((node) => node['@type'] === 'Organization');
+
+    expect(org).toBeDefined();
+    expect(org.legalName).toBe(LEGAL_NAME_EN);
+    expect(org.address['@type']).toBe('PostalAddress');
+    expect(org.address.addressLocality).toBe('Gaza');
+    expect(org.address.addressCountry).toBe('PS');
+    expect(org.telephone).toBe('+970592903278');
+    expect(org.email).toBe('info@osamajenana.com');
+    expect(org.identifier.map((id: { value: string }) => id.value)).toEqual(
+      expect.arrayContaining(['563493311', '39679']),
+    );
+  });
+});
+
+test.describe('policy pages', () => {
+  /**
+   * These three URLs are submitted to Meta. A 404 on any of them fails an App
+   * Review, so their existence in both locales is a test, not a convention.
+   */
+  for (const slug of ['privacy', 'terms', 'data-deletion']) {
+    for (const locale of ['en', 'ar']) {
+      test(`/${locale}/${slug} resolves and names the company`, async ({ page }) => {
+        const response = await page.goto(`/${locale}/${slug}`);
+        expect(response?.status()).toBe(200);
+
+        await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+        await expect(page.getByRole('main')).toContainText('info@osamajenana.com');
+      });
+    }
+  }
+
+  test('are reachable from the footer of any page', async ({ page }) => {
+    await page.goto('/en/work');
+    const footer = page.getByRole('contentinfo');
+
+    for (const link of [
+      { name: 'Privacy Policy', href: '/en/privacy' },
+      { name: 'Terms of Service', href: '/en/terms' },
+      { name: 'Data Deletion', href: '/en/data-deletion' },
+    ]) {
+      await expect(footer.getByRole('link', { name: link.name })).toHaveAttribute(
+        'href',
+        link.href,
+      );
+    }
+  });
+
+  test('the data deletion page states a route and a deadline', async ({ page }) => {
+    await page.goto('/en/data-deletion');
+    const main = page.getByRole('main');
+
+    await expect(main).toContainText('Data deletion request');
+    await expect(main).toContainText('30 calendar days');
+    await expect(main.getByRole('link', { name: 'info@osamajenana.com' }).first()).toBeVisible();
+  });
+});
+
+test.describe('platform page', () => {
+  test('is in the main navigation and describes the product', async ({ page }) => {
+    await page.goto('/en');
+
+    // Desktop viewport: the nav track is visible; on the phone project the
+    // drawer holds the same link, so scope to the header either way.
+    const link = page.getByRole('banner').getByRole('link', { name: 'Platform' });
+    await expect(link.first()).toHaveAttribute('href', '/en/platform');
+
+    await page.goto('/en/platform');
+    const main = page.getByRole('main');
+    await expect(page.getByRole('heading', { level: 1, name: 'Platform' })).toBeVisible();
+    await expect(main).toContainText('WhatsApp');
+    await expect(main).toContainText('24-hour window');
+  });
+
+  test('renders in Arabic without falling back to English', async ({ page }) => {
+    await page.goto('/ar/platform');
+
+    await expect(page.getByRole('heading', { level: 1, name: 'المنصة' })).toBeVisible();
+    await expect(page.getByRole('main')).toContainText('صندوق وارد واحد');
   });
 });
