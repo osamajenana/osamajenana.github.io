@@ -1,9 +1,54 @@
 import { getTranslations } from 'next-intl/server';
+import type { ReactNode } from 'react';
 
 import { Portrait } from '@/components/ui/Portrait';
 import { company, cv, legalItems, owner, socials } from '@/content/site';
 import { Link } from '@/i18n/navigation';
-import type { Locale } from '@/i18n/routing';
+import { directionOf, type Locale } from '@/i18n/routing';
+
+/**
+ * A run of text in a script other than the page's, isolated from it.
+ *
+ * An Arabic string dropped into an LTR paragraph — or a Latin one into an RTL
+ * paragraph — inherits the surrounding direction and drags the punctuation
+ * around it to the wrong side. `dir` on an inline element makes the run a bidi
+ * isolate, so it lays out on its own terms and the brackets and full stops
+ * beside it stay where the reader expects. `lang` is what a screen reader
+ * switches voices on.
+ */
+function Script({ locale, children }: { locale: Locale; children: ReactNode }) {
+  return (
+    <span lang={locale} dir={directionOf(locale)}>
+      {children}
+    </span>
+  );
+}
+
+/**
+ * The registered name in both scripts, the page's own first.
+ *
+ * Meta's Business Verification looks for the name exactly as it is written on
+ * the commercial registration certificate, and that document is in Arabic —
+ * but English is this site's default locale, so a reviewer following the
+ * submitted URL lands somewhere the Arabic name never appeared. Publishing
+ * only the translation is indistinguishable, to that reviewer, from not
+ * publishing the name at all.
+ *
+ * Both forms are therefore rendered as real text in both locales, server-side,
+ * with nothing assembled on the client and nothing hidden: a crawler that does
+ * not run JavaScript finds them in the markup, and a human finds them in the
+ * footer.
+ */
+function LegalName({ locale }: { locale: Locale }) {
+  const other: Locale = locale === 'ar' ? 'en' : 'ar';
+
+  return (
+    <>
+      <Script locale={locale}>{company.legalName[locale]}</Script> (
+      <Script locale={other}>{company.legalName[other]}</Script>)
+    </>
+  );
+}
 
 export async function Footer({ locale }: { locale: Locale }) {
   const t = await getTranslations('footer');
@@ -28,8 +73,8 @@ export async function Footer({ locale }: { locale: Locale }) {
    * inside RTL prose otherwise takes its surrounding direction and renders
    * with the wrong digit order.
    */
-  const legalRows: { label: string; value: string; href?: string; ltr?: boolean }[] = [
-    { label: t('legalName'), value: company.legalName[locale] },
+  const legalRows: { label: string; value: ReactNode; href?: string; ltr?: boolean }[] = [
+    { label: t('legalName'), value: <LegalName locale={locale} /> },
     { label: t('address'), value: company.address[locale] },
     { label: t('companyNumber'), value: company.companyNumber, ltr: true },
     { label: t('registrationNumber'), value: company.registrationNumber, ltr: true },
@@ -125,16 +170,29 @@ export async function Footer({ locale }: { locale: Locale }) {
                   </a>
                 </li>
                 <li>
+                  {/*
+                    Isolated to LTR for the same reason the legal block below
+                    is: an RTL page lays the space-separated groups of a phone
+                    number out right to left, so the same number would read
+                    "3278 290 59 970+" here and "+970 59 290 3278" eight lines
+                    down — which is the discrepancy this column exists to stop.
+                  */}
                   <a
                     href={`https://wa.me/${owner.whatsapp.e164}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    dir="ltr"
                     className="nums text-sm text-ink-muted transition-colors hover:text-ink"
                   >
                     {owner.whatsapp.display}
                   </a>
                 </li>
-                <li className="text-sm text-ink-subtle">{owner.location[locale]}</li>
+                {/*
+                  The full registered address, not the short locality — this
+                  column and the legal block below it are read as one, and two
+                  different addresses for one company reads as a discrepancy.
+                */}
+                <li className="text-sm text-ink-subtle">{company.address[locale]}</li>
               </ul>
             </div>
           </div>
@@ -145,8 +203,15 @@ export async function Footer({ locale }: { locale: Locale }) {
         {/* ---- registered entity ---- */}
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
           <div className="max-w-xl">
+            {/*
+              Both scripts, English first in either locale. The copyright line
+              is the one string a reviewer reads without looking for it, so it
+              carries the same pair as the legal-name row above rather than
+              whichever half matches the current language.
+            */}
             <p className="text-xs text-ink-subtle">
-              © {new Date().getFullYear()} {company.legalName[locale]}. {t('rights')}
+              © {new Date().getFullYear()} <Script locale="en">{company.legalName.en}</Script> —{' '}
+              <Script locale="ar">{company.legalName.ar}</Script>. {t('rights')}
             </p>
 
             <dl className="mt-5 grid gap-x-5 gap-y-1.5 text-xs leading-relaxed text-ink-subtle sm:grid-cols-[9.5rem_minmax(0,1fr)]">

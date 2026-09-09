@@ -46,9 +46,13 @@ export const company = {
     en: 'Gaza – Al-Rimal Al-Shamali – near Palestine Stadium, Palestine',
     ar: 'غزة – الرمال الشمالي – بالقرب من ملعب فلسطين، فلسطين',
   } satisfies Localized,
-  /** Split form, for schema.org PostalAddress. Same words as `address`. */
+  /**
+   * Split form, for schema.org PostalAddress. Same words as `address`; only
+   * the separator differs, because a street line in structured data is comma
+   * separated rather than dash separated.
+   */
   postalAddress: {
-    streetAddress: 'Al-Rimal Al-Shamali – near Palestine Stadium',
+    streetAddress: 'Al-Rimal Al-Shamali, near Palestine Stadium',
     addressLocality: 'Gaza',
     addressCountry: 'PS',
   },
@@ -104,10 +108,23 @@ export const owner = {
   location: company.locality,
   /** The company mailbox. Also the contact form's fallback recipient. */
   email: company.email,
+  /**
+   * WhatsApp. The two fields deliberately disagree, and neither may be
+   * "corrected" into the other.
+   *
+   * `e164` is the account identifier WhatsApp itself issued — the SIM was sold
+   * under the +972 country code — and it is the only string wa.me will resolve.
+   * `display` is the company line as published everywhere else on the site and
+   * on the commercial registration certificate: +970. Meta's Business
+   * Verification reads the rendered page, and a footer that shows two different
+   * numbers for the same business is a rejection, so every visible occurrence
+   * is the +970 form while the link underneath keeps the account's own digits.
+   */
   whatsapp: {
-    /** E.164 digits only, for wa.me links. */
+    /** E.164 digits only, for wa.me links. Never rendered as text. */
     e164: '972592903278',
-    display: '+972 59 290 3278',
+    /** What a reader sees. Matches `company.phone.display`. */
+    display: company.phone.display,
   },
   yearsExperience: 6,
   /** Year the first paid project shipped — drives the "since" copy. */

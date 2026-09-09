@@ -326,6 +326,47 @@ test.describe('registered entity', () => {
     await expect(footer).toContainText('563493311');
   });
 
+  /**
+   * The certificate is in Arabic and English is the default locale, so a
+   * reviewer following the submitted URL has to find the Arabic name without
+   * switching language. Asserted against the served HTML, not the rendered
+   * DOM: the requirement is that a crawler which never runs JavaScript sees
+   * it, which a page-level text assertion would not catch.
+   */
+  for (const locale of ['en', 'ar'] as const) {
+    test(`serves both forms of the legal name in the ${locale} markup`, async ({ request }) => {
+      const html = await (await request.get(`/${locale}`)).text();
+
+      expect(html).toContain(LEGAL_NAME_EN);
+      expect(html).toContain(LEGAL_NAME_AR);
+      // Each form carries its own direction. Without it the one that is not the
+      // page's language takes the surrounding direction and the brackets around
+      // it land on the wrong side.
+      expect(html).toContain(`<span lang="ar" dir="rtl">${LEGAL_NAME_AR}</span>`);
+      expect(html).toContain(`<span lang="en" dir="ltr">${LEGAL_NAME_EN}</span>`);
+    });
+
+    test(`names the company in both scripts in the ${locale} copyright line`, async ({ page }) => {
+      await page.goto(`/${locale}`);
+      const copyright = page.getByRole('contentinfo').locator('p').filter({ hasText: '©' });
+
+      await expect(copyright).toContainText(`© ${new Date().getFullYear()}`);
+      await expect(copyright).toContainText(LEGAL_NAME_EN);
+      await expect(copyright).toContainText(LEGAL_NAME_AR);
+    });
+  }
+
+  test('gives the footer one address, not a short and a long one', async ({ page }) => {
+    await page.goto('/en');
+    const footer = page.getByRole('contentinfo');
+
+    await expect(footer).toContainText(ADDRESS_EN);
+    // The contact column used to carry a trimmed "Gaza, Palestine" beside the
+    // full line in the legal block. Two addresses for one company reads as a
+    // discrepancy.
+    await expect(footer).not.toContainText('Gaza, Palestine');
+  });
+
   test('no longer publishes the personal address anywhere', async ({ page }) => {
     for (const path of ['/en', '/ar', '/en/contact', '/ar/contact', '/en/cv']) {
       await page.goto(path);
@@ -339,11 +380,14 @@ test.describe('registered entity', () => {
 
     await expect(office).toContainText(LEGAL_NAME_EN);
     await expect(office).toContainText(ADDRESS_EN);
-    // The WhatsApp route is unchanged — it is the one link that must not move.
+    // The WhatsApp route is unchanged — it is the one link that must not move —
+    // but it is labelled with the registered line rather than the +972 the
+    // account happens to have been issued under. Found by href, since the
+    // number it now shows is the same one the office block links by tel:.
     // Scoped to main: the footer carries the same link in its contact column.
-    await expect(
-      page.getByRole('main').getByRole('link', { name: '+972 59 290 3278' }),
-    ).toHaveAttribute('href', 'https://wa.me/972592903278');
+    await expect(page.getByRole('main').locator('a[href="https://wa.me/972592903278"]')).toHaveText(
+      '+970 59 290 3278',
+    );
   });
 
   test('exposes an Organization node with a postal address', async ({ page }) => {

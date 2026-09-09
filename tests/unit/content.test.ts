@@ -7,7 +7,7 @@ import { projects } from '@/content/projects';
 import { caseStudies } from '@/content/projects/case-studies';
 import { resume } from '@/content/resume';
 import { services } from '@/content/services';
-import { company } from '@/content/site';
+import { company, owner } from '@/content/site';
 import { getBySlug, getFeatured, getWorkGrid } from '@/lib/projects';
 
 /**
@@ -143,11 +143,27 @@ describe('registered entity', () => {
 
   it('keeps the split postal address in step with the written one', () => {
     // The JSON-LD PostalAddress is assembled from parts; those parts have to be
-    // the same words a reviewer reads in the footer.
+    // the same words a reviewer reads in the footer. Only the separator is
+    // allowed to differ — structured data commas the street line where the
+    // written address dashes it — so both sides are compared with separators
+    // flattened. A translated or reworded street still fails.
+    const separators = /[–—,-]/g;
+    const flatten = (value: string) => value.replace(separators, ' ').replace(/\s+/g, ' ').trim();
+
     const { streetAddress, addressLocality } = company.postalAddress;
-    expect(company.address.en).toContain(streetAddress);
+    expect(flatten(company.address.en)).toContain(flatten(streetAddress));
     expect(company.address.en).toContain(addressLocality);
     expect(company.postalAddress.addressCountry).toBe('PS');
+  });
+
+  it('publishes one phone number, whatever route it is reached by', () => {
+    // The WhatsApp account was issued under +972 and wa.me will resolve nothing
+    // else, but a footer showing both codes for one business is a verification
+    // rejection. The link keeps the account's digits; every visible string is
+    // the registered line.
+    expect(owner.whatsapp.display).toBe(company.phone.display);
+    expect(owner.whatsapp.display).toContain('+970');
+    expect(owner.whatsapp.e164).toBe('972592903278');
   });
 
   it('publishes no personal address as the contact route', () => {
