@@ -69,9 +69,7 @@ export default async function CvPage({ params }: { params: Promise<{ locale: Loc
                 {resume.email}
               </a>
             </li>
-            <li dir="ltr" className="nums">
-              {resume.whatsapp}
-            </li>
+            <li className="nums">{resume.whatsapp}</li>
             <li>
               <a href={resume.website} className="hover:text-ink">
                 {resume.website.replace('https://', '')}

@@ -47,9 +47,7 @@ export async function ContactCta() {
                   {owner.email}
                 </a>
                 <span className="mx-2">·</span>
-                <span dir="ltr" className="nums">
-                  {owner.whatsapp.display}
-                </span>
+                <span className="nums">{owner.whatsapp.display}</span>
               </p>
             </div>
           </div>
