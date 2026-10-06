@@ -120,12 +120,21 @@ export const cv = {
   downloadName: 'Osama-Jenana-CV.pdf',
 } as const;
 
+/**
+ * The X account, written once. The profile link and the handle a link preview
+ * credits are both built from it, so a correction here reaches both.
+ */
+const X_ACCOUNT = 'jenanaosama';
+
 export const socials = {
   github: 'https://github.com/osamajenana',
   githubOrg: 'https://github.com/Muscat-Apps',
   linkedin: 'https://www.linkedin.com/in/osama-jenana/' as string | null,
-  x: 'https://x.com/OsamaJenana',
+  x: `https://x.com/${X_ACCOUNT}`,
 } as const;
+
+/** The same account as `twitter:creator` names it. */
+export const xHandle = `@${X_ACCOUNT}`;
 
 /**
  * Booking — where "Book a consultation" leads.

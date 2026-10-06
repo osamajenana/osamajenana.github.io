@@ -8,7 +8,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { owner, resolveNavItems, SITE_URL, seoKeywords } from '@/content/site';
+import { owner, resolveNavItems, SITE_URL, seoKeywords, xHandle } from '@/content/site';
 import { directionOf, localeTags, routing } from '@/i18n/routing';
 import { fontVariables } from '@/lib/fonts';
 import { publishedPostCount } from '@/lib/posts';
@@ -83,7 +83,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title: t('titleDefault'),
       description: t('description'),
-      creator: '@OsamaJenana',
+      creator: xHandle,
     },
     robots: {
       index: true,
