@@ -24,6 +24,11 @@ const ROUTES = [
   '/contact',
   '/blog',
   '/blog/stateful-whatsapp-flow-engine',
+  // One per code language the posts highlight: each brings its own token
+  // colours, and those are what the contrast rules are checking.
+  '/blog/verifying-meta-webhooks-raw-body',
+  '/blog/flutter-ble-pigeon-platform-channels',
+  '/blog/provider-agnostic-ai-layer',
 ];
 
 const LOCALES = ['en', 'ar'] as const;

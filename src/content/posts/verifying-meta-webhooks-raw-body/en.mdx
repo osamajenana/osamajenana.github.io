@@ -1,0 +1,109 @@
+Every webhook Meta sends — a WhatsApp message, an Instagram comment, a delivery receipt — arrives with a header that proves where it came from. Check it wrongly and one of two things happens: you reject real customers, or you accept anyone who can find your endpoint.
+
+Both failures are quiet. That is why this is worth getting right once, in one place.
+
+## What Meta actually signs
+
+The header is `X-Hub-Signature-256`, and its value is `sha256=` followed by a hex digest: an HMAC-SHA256 of the request payload, keyed with your app secret.
+
+The word that matters is *payload*. Meta signs the exact bytes it put on the wire, not the data those bytes describe. Two JSON documents can carry identical data and still differ byte for byte — in key order, in whitespace, in whether a slash is escaped, in whether a non-ASCII character is written out or as a `\u` escape. Meta's own documentation points out that the signature is computed over the escaped form.
+
+So the check has exactly one correct input: the body as it was received, before anything parsed it.
+
+## The mistake that passes its own tests
+
+This is the version that gets written first:
+
+```ts
+// Looks reasonable. Verifies a different message.
+const expected = createHmac('sha256', appSecret)
+  .update(JSON.stringify(request.body))
+  .digest('hex');
+```
+
+By the time this runs, the framework has parsed the body and handed you an object. `JSON.stringify` then writes a new document from that object, and you are comparing Meta's signature against bytes Meta never sent.
+
+What makes it dangerous is that it can work. A short payload with plain ASCII values can round-trip to the same bytes, so the first test passes and the code ships. It stops matching the day a payload contains something the two serialisers write differently. For an Arabic-first product that day is the first real customer: an Arabic message arrives escaped, and the re-serialised copy writes the characters out.
+
+## Verifying the bytes that were sent
+
+Keep the raw body, and verify that. In Fastify that means asking the JSON parser for a buffer and parsing it yourself:
+
+```ts
+fastify.addContentTypeParser(
+  'application/json',
+  { parseAs: 'buffer' },
+  (request, body, done) => {
+    // Kept for the signature check; the parsed object is for everything else.
+    request.rawBody = body as Buffer;
+
+    try {
+      done(null, JSON.parse(body.toString('utf8')));
+    } catch (error) {
+      done(error as Error);
+    }
+  },
+);
+```
+
+The check itself is short:
+
+```ts
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
+export function isFromMeta(rawBody: Buffer, header: string | undefined, appSecret: string) {
+  if (!header?.startsWith('sha256=')) return false;
+
+  const expected = createHmac('sha256', appSecret).update(rawBody).digest();
+  const received = Buffer.from(header.slice('sha256='.length), 'hex');
+
+  // timingSafeEqual throws when the lengths differ, so that is ruled out first.
+  return received.length === expected.length && timingSafeEqual(received, expected);
+}
+```
+
+Two details in there are not decoration. The comparison is constant-time, because a comparison that returns early on the first wrong byte tells an attacker how many bytes they got right. And a missing or malformed header is a rejection, not an exception — an unsigned request is the most ordinary thing an open endpoint receives.
+
+## Why the check lives in its own service
+
+In the WhatsApp commerce platform this code does not sit in the Laravel application. It sits in a separate Node gateway: fourteen source files, no database, no business rules. A Laravel route would have been less infrastructure, and for a smaller system it might have been the right call. Three things pushed the other way.
+
+**The raw body is easiest to protect where nothing else touches it.** Inside a full application the check has to run before anything has read the request, and it stays correct only as long as nobody adds a middleware in front of it. In a service whose whole job is this check, there is nothing in front of it.
+
+**The cryptography has no business next to invoices.** WhatsApp Flows add encrypted payloads, which means RSA and AES key handling. That is a different kind of code from order pricing, with a different kind of test, and it changes for different reasons.
+
+**Acknowledgement has to be fast.** Meta retries a delivery that is not acknowledged, so a slow handler turns one message into several. A thin service that verifies, decrypts, normalises and forwards can answer immediately, however slow the work behind it is.
+
+## The second boundary
+
+Once the gateway forwards a message inward, the application faces the question the gateway just answered: how does it know who sent this? "It came from our own gateway" is an assumption about network layout, and layouts change.
+
+So that hop is signed as well, in both directions, with a secret the two services share. Neither one acts on a request the other did not sign. On the application side the check is one small middleware — in outline:
+
+```php
+final class VerifyGatewaySignature
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        $expected = hash_hmac('sha256', $request->getContent(), config('gateway.secret'));
+
+        // hash_equals is PHP's constant-time comparison.
+        abort_unless(
+            hash_equals($expected, (string) $request->header('X-Gateway-Signature')),
+            401,
+        );
+
+        return $next($request);
+    }
+}
+```
+
+If you sign a timestamp along with the body, the receiver can also refuse a request that is too old — which is what a replayed one is.
+
+## What it cost, and what it bought
+
+Fourteen files and a set of crypto tests of their own. That is the whole price.
+
+What it bought is that Meta's protocol and the business now change independently. When a webhook envelope changes, the gateway moves and no business code is opened. When pricing rules or branch behaviour change, the gateway is not touched.
+
+When you integrate with a platform you do not control, put it behind a service you do. The seam pays for itself the first time the vendor changes something — and with a platform this size, that is never far off.

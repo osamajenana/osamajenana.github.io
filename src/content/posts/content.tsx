@@ -2,8 +2,14 @@ import type { ReactElement } from 'react';
 
 import type { Locale } from '@/i18n/routing';
 
+import ArPigeon from './flutter-ble-pigeon-platform-channels/ar.mdx';
+import EnPigeon from './flutter-ble-pigeon-platform-channels/en.mdx';
+import ArAiLayer from './provider-agnostic-ai-layer/ar.mdx';
+import EnAiLayer from './provider-agnostic-ai-layer/en.mdx';
 import ArFlowEngine from './stateful-whatsapp-flow-engine/ar.mdx';
 import EnFlowEngine from './stateful-whatsapp-flow-engine/en.mdx';
+import ArWebhooks from './verifying-meta-webhooks-raw-body/ar.mdx';
+import EnWebhooks from './verifying-meta-webhooks-raw-body/en.mdx';
 
 /**
  * Post bodies as ready-made elements, keyed by slug and locale.
@@ -25,5 +31,17 @@ export const postBodies: Record<string, Record<Locale, ReactElement>> = {
   'stateful-whatsapp-flow-engine': {
     en: <EnFlowEngine />,
     ar: <ArFlowEngine />,
+  },
+  'verifying-meta-webhooks-raw-body': {
+    en: <EnWebhooks />,
+    ar: <ArWebhooks />,
+  },
+  'flutter-ble-pigeon-platform-channels': {
+    en: <EnPigeon />,
+    ar: <ArPigeon />,
+  },
+  'provider-agnostic-ai-layer': {
+    en: <EnAiLayer />,
+    ar: <ArAiLayer />,
   },
 };

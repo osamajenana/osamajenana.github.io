@@ -1,0 +1,117 @@
+Sila is a messenger for when there is no internet: phones pass messages to one another over Bluetooth Low Energy, hop by hop, with no server anywhere. Flutter owns the interface, the local store and the routing policy. The radio work does not — that is native code, written once for Android and once for iOS.
+
+Which puts a border straight through the middle of the app. Everything the radio learns has to cross it into Dart, and everything Dart decides has to cross back. This post is about how that border is built, because on this project it was the decision that paid back the most.
+
+## Why the radio is native at all
+
+It would be simpler to do Bluetooth from Dart through a plugin and keep one codebase. For an app that talks to a single accessory, that works.
+
+A mesh node is not that device. Each phone is a peripheral and a central at the same time: advertising and accepting connections while also scanning and connecting out. It has to keep doing both in the background, and that is exactly where the two platforms part ways. Background execution, advertising and connection lifecycles differ too much between Android and iOS to hide behind a common abstraction.
+
+So there are two implementations. Kotlin handles advertising, scanning, the GATT server and client, and background execution. Swift does the peripheral and central roles in CoreBluetooth, under iOS's background limits. Accepting that early cost less than fighting one abstraction for months.
+
+## The border is not two calls
+
+If the native side exposed `start()` and `stop()`, none of this would matter.
+
+It carries far more than that: connection state, peer discovery events, the results of GATT reads and writes, and every error condition — in both directions, on two platforms. That is a real API, and it is implemented three times: once in Dart, once in Kotlin, once in Swift.
+
+## What a hand-written channel costs
+
+Flutter's standard tool for this is a method channel. On the Dart side:
+
+```dart
+final delivered = await channel.invokeMethod<bool>('send', {
+  'peerId': peer.id,
+  'payload': bytes,
+});
+```
+
+And on the Android side:
+
+```kotlin
+when (call.method) {
+    "send" -> {
+        val peerId = call.argument<String>("peerId")
+        val payload = call.argument<ByteArray>("payload")
+        // …
+    }
+}
+```
+
+Look at what holds these two together: the string `'send'`, the string `'peerId'`, and the hope that both files agree on them. Nothing checks it. Rename a key on one side and both sides still compile, the tests on each side still pass, and the app still launches.
+
+It fails later — at runtime, on a device, on the one code path that uses that call. For an app meant to work when nothing else does, the place that failure shows up is in somebody's hand, in the field.
+
+## Describing it once
+
+Pigeon turns the contract into a file. You describe the API in Dart, and it generates the Dart, Kotlin and Swift for both sides. The definition below is cut down to show the shape:
+
+```dart
+import 'dart:typed_data';
+
+import 'package:pigeon/pigeon.dart';
+
+class Peer {
+  Peer({required this.id, required this.rssi});
+
+  final String id;
+  final int rssi;
+}
+
+enum LinkState { connecting, connected, disconnected }
+
+/// Dart calls these. Kotlin and Swift implement them.
+@HostApi()
+abstract class MeshRadio {
+  void startAdvertising();
+  void startScanning();
+
+  @async
+  bool send(String peerId, Uint8List payload);
+}
+
+/// Kotlin and Swift call these. Dart implements them.
+@FlutterApi()
+abstract class MeshRadioEvents {
+  void onPeerDiscovered(Peer peer);
+  void onLinkStateChanged(String peerId, LinkState state);
+  void onPayloadReceived(String peerId, Uint8List payload);
+}
+```
+
+One command regenerates all three sides:
+
+```bash
+dart run pigeon --input pigeons/mesh_radio.dart
+```
+
+On Android the generated code is an interface to implement, not a string to match:
+
+```kotlin
+class AndroidMeshRadio : MeshRadio {
+    override fun startAdvertising() { /* BluetoothLeAdvertiser */ }
+
+    override fun startScanning() { /* BluetoothLeScanner */ }
+
+    override fun send(peerId: String, payload: ByteArray, callback: (Result<Boolean>) -> Unit) {
+        // Write to the peer's characteristic; report the outcome through the callback.
+    }
+}
+```
+
+Now change `send` to take a third argument. The Dart call sites stop compiling. The Kotlin class no longer satisfies its interface. Neither does the Swift one. A signature change has become a compile error on all three surfaces at once, before anything is installed on a phone.
+
+## What it does not do
+
+It does not make the two native implementations the same. The Kotlin and the Swift still differ wherever the platforms differ, which is most of the interesting places. Bluetooth background execution is where cross-platform abstractions go to die, and Pigeon is not an abstraction over Bluetooth. It is a guarantee about the border, and nothing more.
+
+That turned out to be the right amount. The parts that must be different are free to be different; the part that must agree cannot disagree.
+
+## What it bought
+
+Failures moved from runtime to compile time. On a project whose whole value is reliability when nothing else works, that was the highest-leverage decision made.
+
+It also gives the Dart side something solid to stand on. The routing policy talks to an interface, not to a radio, so a test can hand it a fake one and never touch Bluetooth. The app is 69 Dart source files with 15 test files, sitting on a per-platform native implementation behind that single generated interface.
+
+If your Flutter app crosses into native code once, a method channel is fine. If the crossing is an API — events, results and errors, in both directions — write it down once and generate it. The mistake you are preventing is the one that only shows up on a device you are not holding.

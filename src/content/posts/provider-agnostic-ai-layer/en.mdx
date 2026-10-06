@@ -1,0 +1,133 @@
+An assistant has two parts that change for unrelated reasons. The conversation changes when the business does: a new product, a new rule about refunds, a new channel. The model changes when a vendor ships something better, reprices, has a bad afternoon, or when a client asks where their customers' messages are being sent.
+
+If the first part calls the second directly, every one of those vendor events is an edit to conversation code. This post is about the seam that stops that, what belongs on each side of it, and what it makes cheap afterwards.
+
+## The coupling you do not notice
+
+The first version of any assistant calls the vendor's SDK wherever it needs an answer. It is the fastest way to get something working, and it works.
+
+What happens quietly is that the vendor's vocabulary becomes the application's. Their message format is what you store. Their role names are in your database. Their parameter names are in your handlers and their error types are in your `catch` blocks. None of that is a bug, and you only find out how far it spread on the day you want to try a different model — when "swap the provider" turns out to mean "touch every file that talks".
+
+## The seam
+
+The fix is one interface, written in the application's words rather than any vendor's:
+
+```ts
+export type Turn = { role: 'customer' | 'assistant'; text: string };
+
+export type Reply =
+  | { kind: 'answer'; text: string; usage: { inputTokens: number; outputTokens: number } }
+  | { kind: 'handoff'; reason: string };
+
+/** Everything the conversation code is allowed to know about a model. */
+export interface ChatProvider {
+  reply(request: {
+    instructions: string;
+    history: Turn[];
+    maxOutputTokens: number;
+    timeoutMs: number;
+  }): Promise<Reply>;
+}
+```
+
+It is deliberately small. A customer and an assistant take turns; a reply is either an answer or a decision to hand over. There is no mention of tokens-per-minute tiers, tool schemas or streaming chunks, because the conversation does not need to know about them.
+
+## What stays outside it
+
+Three things do not go through that interface, and keeping them out matters as much as the interface itself.
+
+**Channels.** In the omnichannel assistant, one deployment answers on WhatsApp, Messenger and Instagram for every page and every number a company owns, from a single webhook. That only stays manageable if each channel's envelope becomes the same `Turn` before a model is involved: the provider never learns which channel it is answering, and adding a channel does not touch the AI layer at all.
+
+**Limits.** The output ceiling and the timeout are arguments, set by the caller. So is the budget, which is checked before the call is made:
+
+```ts
+export async function answer(conversation: Conversation, provider: ChatProvider, budget: Budget) {
+  if (!budget.allows(conversation.accountId)) {
+    return handOff(conversation, 'budget reached');
+  }
+
+  const reply = await provider.reply({
+    instructions: conversation.instructions,
+    history: conversation.recentTurns(),
+    maxOutputTokens: 400,
+    timeoutMs: 15_000,
+  });
+
+  if (reply.kind === 'handoff') return handOff(conversation, reply.reason);
+
+  budget.record(conversation.accountId, reply.usage);
+  return send(conversation, reply.text);
+}
+```
+
+A budget is a number checked in code, not a sentence in a prompt. A model can be talked out of a sentence. That check is what keeps an unexpected month from becoming an unexpected invoice.
+
+**Hand-off.** Passing the conversation to a person is a kind of reply, not an exception. Some questions are ones the model should not be deciding, and the conversation code needs exactly one place to deal with that — whether the hand-off came from the model, from a rule, or from a spent budget.
+
+## One adapter
+
+Each vendor then gets one file, and it is the only file that imports their SDK:
+
+```ts
+import OpenAI from 'openai';
+
+export class OpenAiProvider implements ChatProvider {
+  constructor(
+    private readonly client: OpenAI,
+    private readonly model: string,
+  ) {}
+
+  async reply(request: Parameters<ChatProvider['reply']>[0]): Promise<Reply> {
+    const completion = await this.client.chat.completions.create(
+      {
+        model: this.model,
+        max_completion_tokens: request.maxOutputTokens,
+        messages: [
+          { role: 'system', content: request.instructions },
+          ...request.history.map((turn) => ({
+            role: turn.role === 'customer' ? ('user' as const) : ('assistant' as const),
+            content: turn.text,
+          })),
+        ],
+      },
+      { timeout: request.timeoutMs },
+    );
+
+    const text = completion.choices[0]?.message.content?.trim();
+    if (!text) return { kind: 'handoff', reason: 'empty model reply' };
+
+    return {
+      kind: 'answer',
+      text,
+      usage: {
+        inputTokens: completion.usage?.prompt_tokens ?? 0,
+        outputTokens: completion.usage?.completion_tokens ?? 0,
+      },
+    };
+  }
+}
+```
+
+Everything vendor-shaped is in there: their role names, their parameter names, the shape of their response. It stops at the bottom of the file. Which adapter is constructed is configuration, so the model is an adapter and swapping it later is a config change.
+
+## Slow is the normal case
+
+A model call takes seconds, and sometimes many. Anything that waits for one inside a web request has given the vendor control of its response time.
+
+So the expensive work goes on a queue. In the real-time voice translation system a Python service does the speech work while a Laravel control plane manages speakers, subscriptions and quotas, and everything expensive runs through Redis-backed queues — a slow model response never blocks a request. The interface above fits that without changing: a worker calls `reply` exactly as a request handler would.
+
+## What it makes cheap
+
+**Trying another model.** Write one adapter, change one setting. The conversation code is not opened.
+
+**Testing the conversation.** A fake provider that returns a fixed reply makes conversation logic deterministic, so the steps, the limits and the hand-off can be tested without a network or a bill.
+
+**Saying no to lock-in.** When a client asks what happens if the vendor changes its terms, the answer is a file, not a rewrite.
+
+## What it does not hide
+
+Models differ in behaviour, not just in API. Instructions tuned against one will need work against another, and no interface makes that go away. The seam makes a swap possible and contained; it does not make it free.
+
+It also grows only when the product does. If the assistant never calls a tool, the interface has no tool calls in it. An interface that tries to cover every feature of every vendor is just a second SDK, and it is worse than the first.
+
+Put the model behind an interface early, while it is still one call. It is a small job then, and it is the difference between choosing your vendor and being kept by one.
