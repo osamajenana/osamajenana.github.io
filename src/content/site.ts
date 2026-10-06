@@ -4,7 +4,6 @@ import type { Localized, Pillar } from '@/lib/schemas';
  * Single source of truth for identity, navigation and SEO defaults.
  *
  * PENDING owner input (tracked in the project plan, section 13):
- *   - `linkedin` is null until the profile URL is supplied.
  *   - `email` may move to hello@osamajenana.com once the mailbox exists.
  *   - a second (Gulf) WhatsApp number may be added alongside the current one.
  */
@@ -22,6 +21,12 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://osamajenan
   /\/+$/,
   '',
 );
+
+/**
+ * Year the first paid project shipped. Every statement of experience on the
+ * site counts from here — see `owner.yearsExperience`.
+ */
+const SINCE = 2019;
 
 export const owner = {
   /** Legal name — used in JSON-LD, the CV, and the copyright line. */
@@ -74,9 +79,21 @@ export const owner = {
     e164: '972592903278',
     display: '+972 59 290 3278',
   },
-  yearsExperience: 6,
+  /**
+   * Whole years since `since`, worked out when the site is built. Derived, not
+   * typed in: as a literal it sat at 6 on the About page and in the CV profile
+   * while the hero, counting from the same year, had already moved on to 7.
+   */
+  yearsExperience: new Date().getFullYear() - SINCE,
   /** Year the first paid project shipped — drives the "since" copy. */
-  since: 2019,
+  since: SINCE,
+  /**
+   * Systems shipped in total, as a floor: every place that states it writes
+   * "40+". It is more than the registry holds on purpose — the registry is the
+   * work that can be written up, and the pages that count it say "documented
+   * on this site". Both numbers are true; they must not be swapped.
+   */
+  systemsShipped: 40,
 } as const;
 
 /**
@@ -106,7 +123,7 @@ export const cv = {
 export const socials = {
   github: 'https://github.com/osamajenana',
   githubOrg: 'https://github.com/Muscat-Apps',
-  linkedin: null as string | null,
+  linkedin: 'https://www.linkedin.com/in/osama-jenana/' as string | null,
   x: 'https://x.com/OsamaJenana',
 } as const;
 

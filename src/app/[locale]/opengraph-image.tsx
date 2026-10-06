@@ -69,7 +69,7 @@ export default async function OgImage() {
           <div style={{ fontSize: 30, color: BRAND }}>{owner.role.en}</div>
         </div>
         <div style={{ fontSize: 22, color: SUBTLE }}>
-          Laravel · Vue · Next.js · Node · Flutter · AI · 40+ shipped systems
+          {`Laravel · Vue · Next.js · Node · Flutter · AI · ${owner.systemsShipped}+ shipped systems`}
         </div>
       </div>
     </div>,

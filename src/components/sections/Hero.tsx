@@ -9,7 +9,6 @@ import { Portrait } from '@/components/ui/Portrait';
 import { StatusDot } from '@/components/ui/Tag';
 import { owner, ownerName } from '@/content/site';
 import { directionOf, type Locale } from '@/i18n/routing';
-import { getArchive, getWorkGrid } from '@/lib/projects';
 
 /**
  * The hero.
@@ -30,9 +29,6 @@ export async function Hero({ locale }: { locale: Locale }) {
   const t = await getTranslations('hero');
   const name = owner.displayName[locale];
   const otherScript: Locale = locale === 'ar' ? 'en' : 'ar';
-
-  const systems = getWorkGrid().length + getArchive().length;
-  const years = new Date().getFullYear() - owner.since;
 
   return (
     <section className="relative isolate overflow-hidden">
@@ -171,12 +167,18 @@ export async function Hero({ locale }: { locale: Locale }) {
               <div className="glass rounded-panel px-5 py-4 shadow-lift">
                 <dl className="flex items-center gap-5">
                   <div>
-                    <dd className="nums text-2xl font-semibold text-ink">{systems}+</dd>
+                    {/* The total shipped, not the count this site documents —
+                        see `owner.systemsShipped` for why they differ. */}
+                    <dd className="nums text-2xl font-semibold text-ink">
+                      {owner.systemsShipped}+
+                    </dd>
                     <dt className="mt-0.5 text-[11px] text-ink-muted">{t('statSystems')}</dt>
                   </div>
                   <span aria-hidden className="h-9 w-px bg-line" />
                   <div>
-                    <dd className="nums text-2xl font-semibold text-ink">{years}</dd>
+                    <dd className="nums text-2xl font-semibold text-ink">
+                      {owner.yearsExperience}
+                    </dd>
                     <dt className="mt-0.5 text-[11px] text-ink-muted">{t('statYears')}</dt>
                   </div>
                 </dl>

@@ -39,6 +39,17 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       external: true,
     },
     { label: 'GitHub', value: 'github.com/osamajenana', href: socials.github, external: true },
+    ...(socials.linkedin
+      ? [
+          {
+            label: 'LinkedIn',
+            // The address as a reader would type it: no scheme, no trailing slash.
+            value: socials.linkedin.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''),
+            href: socials.linkedin,
+            external: true,
+          },
+        ]
+      : []),
   ];
 
   return (

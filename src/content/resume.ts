@@ -14,6 +14,20 @@ import type { ResumeInput } from '@/lib/schemas';
  * project's name, period and stack can never drift between site and CV.
  */
 
+/** The résumé's Arabic prose writes its figures in Eastern Arabic numerals. */
+function arabicDigits(value: number): string {
+  return String(value).replace(/\d/g, (digit) => '٠١٢٣٤٥٦٧٨٩'[Number(digit)] ?? digit);
+}
+
+/**
+ * A count of years as Arabic writes it: the plural noun from three to ten, the
+ * singular after that. Experience is derived from a start year, so the count
+ * will cross ten without anyone editing this file.
+ */
+function arabicYears(count: number): string {
+  return `${arabicDigits(count)} ${count >= 3 && count <= 10 ? 'سنوات' : 'سنة'}`;
+}
+
 const raw: ResumeInput = {
   name: ownerName.full,
   headline: {
@@ -21,8 +35,8 @@ const raw: ResumeInput = {
     ar: 'مهندس منتجات Full-Stack · أنظمة مدعومة بالذكاء الاصطناعي',
   },
   profile: {
-    en: 'Full-stack engineer who takes products from an empty repository to a running production system — interface, API, database, mobile client and the server it all runs on. Six years and 40+ shipped systems across commerce, healthcare, charity operations and messaging automation, most of them Arabic-first and RTL. Deep experience with the integrations other people avoid: Meta WhatsApp Cloud API, Gulf payment rails, and ERP synchronisation. Recent work centres on AI-powered automation — provider-agnostic assistant layers, real-time voice translation, and conversational commerce.',
-    ar: 'مهندس full-stack يأخذ المنتج من مستودع فارغ إلى نظام إنتاج يعمل — الواجهة و API وقاعدة البيانات وتطبيق الموبايل والسيرفر الذي يشغّلها كلها. ست سنوات وأكثر من ٤٠ نظاماً مشحوناً في التجارة والرعاية الصحية وإدارة العمل الخيري وأتمتة المراسلة، معظمها عربي أولاً و RTL. خبرة عميقة في التكاملات التي يتهرب منها غيري: Meta WhatsApp Cloud API وبوابات الدفع الخليجية ومزامنة أنظمة ERP. العمل الأحدث يتمركز حول الأتمتة المدعومة بالذكاء الاصطناعي — طبقات مساعدين مستقلة عن المزوّد، وترجمة صوتية فورية، وتجارة محادثية.',
+    en: `Full-stack engineer who takes products from an empty repository to a running production system — interface, API, database, mobile client and the server it all runs on. ${owner.yearsExperience} years in production and ${owner.systemsShipped}+ shipped systems across commerce, healthcare, charity operations and messaging automation, most of them Arabic-first and RTL. Deep experience with the integrations other people avoid: Meta WhatsApp Cloud API, Gulf payment rails, and ERP synchronisation. Recent work centres on AI-powered automation — provider-agnostic assistant layers, real-time voice translation, and conversational commerce.`,
+    ar: `مهندس full-stack يأخذ المنتج من مستودع فارغ إلى نظام إنتاج يعمل — الواجهة و API وقاعدة البيانات وتطبيق الموبايل والسيرفر الذي يشغّلها كلها. ${arabicYears(owner.yearsExperience)} في الإنتاج وأكثر من ${arabicDigits(owner.systemsShipped)} نظاماً مشحوناً في التجارة والرعاية الصحية وإدارة العمل الخيري وأتمتة المراسلة، معظمها عربي أولاً و RTL. خبرة عميقة في التكاملات التي يتهرب منها غيري: Meta WhatsApp Cloud API وبوابات الدفع الخليجية ومزامنة أنظمة ERP. العمل الأحدث يتمركز حول الأتمتة المدعومة بالذكاء الاصطناعي — طبقات مساعدين مستقلة عن المزوّد، وترجمة صوتية فورية، وتجارة محادثية.`,
   },
   email: owner.email,
   whatsapp: owner.whatsapp.display,
@@ -144,8 +158,8 @@ const raw: ResumeInput = {
           ar: 'سلّمت تكاملات عبر بوابات دفع (Thawani و JawwalPay و Apple Pay) وأنظمة ERP (Odoo و SmartLife)، بما فيها تسليم الفواتير عبر واتساب.',
         },
         {
-          en: 'Maintain long-lived platforms in production — one charity system has passed 400 commits under continuous ownership.',
-          ar: 'أُصين منصات طويلة العمر في الإنتاج — أحد أنظمة العمل الخيري تجاوز ٤٠٠ commit تحت ملكية متواصلة.',
+          en: 'Maintain long-lived platforms in production — one charity system has passed 600 commits under continuous ownership.',
+          ar: 'أُصين منصات طويلة العمر في الإنتاج — أحد أنظمة العمل الخيري تجاوز ٦٠٠ commit تحت ملكية متواصلة.',
         },
       ],
     },

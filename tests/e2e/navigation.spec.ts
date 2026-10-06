@@ -687,6 +687,20 @@ test.describe('structured data', () => {
   });
 
   /**
+   * `sameAs` is how a crawler ties the site to the person's other profiles,
+   * and it is only believed where the page links them too.
+   */
+  test('names the same profiles the footer links', async ({ page }) => {
+    await page.goto('/en');
+
+    const person = (await structuredData(page)).find((node) => node['@type'] === 'Person');
+    const linkedin = page.getByRole('contentinfo').getByRole('link', { name: 'LinkedIn' });
+
+    await expect(linkedin).toHaveAttribute('href', /^https:\/\/www\.linkedin\.com\/in\/.+/);
+    expect(person?.sameAs).toContain(await linkedin.getAttribute('href'));
+  });
+
+  /**
    * Structured data that says more than the page shows is what search engines
    * discount. Every question and answer in the markup has to be on the page,
    * word for word.

@@ -6,7 +6,7 @@ import { projects } from '@/content/projects';
 import { caseStudies } from '@/content/projects/case-studies';
 import { resume } from '@/content/resume';
 import { services } from '@/content/services';
-import { owner, ownerName } from '@/content/site';
+import { owner, ownerName, socials } from '@/content/site';
 import ar from '@/i18n/messages/ar.json';
 import en from '@/i18n/messages/en.json';
 import { bookingHref, hasScheduler } from '@/lib/booking';
@@ -145,6 +145,49 @@ describe('identity', () => {
 
   it('gives the résumé the same name as the rest of the site', () => {
     expect(resume.name).toEqual(ownerName.full);
+  });
+});
+
+describe('experience', () => {
+  /**
+   * How long and how much are each stated in several places — the hero, the
+   * About stats, the CV profile, the page description, the social card — and
+   * they had drifted: six years in one, seven in another, 28 systems against
+   * 40+. Both now come from `owner`, and these keep the hand-written copy in
+   * the catalogues agreeing with it.
+   */
+  it('counts the years from one start year', () => {
+    expect(owner.yearsExperience).toBe(new Date().getFullYear() - owner.since);
+    expect(resume.profile.en).toContain(`${owner.yearsExperience} years`);
+    expect(resume.profile.en).not.toMatch(/\b(six|6) years\b/i);
+  });
+
+  it('states one number of shipped systems', () => {
+    const claim = `${owner.systemsShipped}+`;
+
+    for (const text of [resume.profile.en, en.meta.description, en.work.lead]) {
+      expect(text).toContain(claim);
+    }
+    for (const text of [ar.meta.description, ar.work.lead]) {
+      expect(text).toContain(`أكثر من ${owner.systemsShipped}`);
+    }
+  });
+
+  it('adds up on the CV, which lists a few and points at the rest', () => {
+    const rest = `${owner.systemsShipped - resume.selectedProjects.length}+`;
+
+    expect(en.cv.moreOnSite).toContain(rest);
+    expect(ar.cv.moreOnSite).toContain(rest);
+  });
+});
+
+describe('profiles', () => {
+  it('link to real addresses on the services they name', () => {
+    expect(new URL(socials.github).hostname).toBe('github.com');
+    expect(new URL(socials.x).hostname).toBe('x.com');
+    if (socials.linkedin) {
+      expect(socials.linkedin).toMatch(/^https:\/\/www\.linkedin\.com\/in\/[a-z0-9-]+\/$/);
+    }
   });
 });
 

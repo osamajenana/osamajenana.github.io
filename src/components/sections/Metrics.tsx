@@ -21,7 +21,7 @@ export async function Metrics() {
   const grid = getWorkGrid();
   const systems = grid.length + getArchive().length;
   const technologies = getStackFrequency().length;
-  const years = new Date().getFullYear() - owner.since;
+  const years = owner.yearsExperience;
   const liveNow = grid.filter((project) => project.status === 'live').length;
 
   /**
