@@ -1,14 +1,15 @@
 {
   "meta": {
-    "titleDefault": "Osama Jenana — Full-Stack Product Engineer",
+    "titleDefault": "Osama Jenana (أسامة جنينة) — Full-Stack Product Engineer",
     "titleTemplate": "%s — Osama Jenana",
-    "description": "Full-Stack Product Engineer building complete products end to end — Laravel, Vue, Next.js, Node, Flutter and AI. 40+ production systems across web, mobile and infrastructure."
+    "description": "Full-stack product engineer for hire, remote worldwide — 40+ systems shipped. Laravel, Vue, Next.js, Flutter and AI: WhatsApp Cloud API, SaaS, payments, ERP."
   },
   "nav": {
     "home": "Home",
     "work": "Work",
     "about": "About",
     "services": "Services",
+    "expertise": "Expertise",
     "blog": "Writing",
     "contact": "Contact",
     "cv": "CV",
@@ -35,6 +36,7 @@
     "ctaWork": "See the work",
     "ctaCv": "Download CV",
     "portraitAlt": "Osama Jenana",
+    "otherScriptLabel": "Name in Arabic:",
     "statSystems": "systems shipped",
     "statYears": "years in production"
   },
@@ -49,6 +51,7 @@
   },
   "work": {
     "title": "Work",
+    "metaTitle": "Projects in Laravel, Vue, Flutter & AI",
     "eyebrow": "{count} selected systems",
     "lead": "Selected systems from 40+ shipped products. Case studies go into architecture, hard trade-offs and measured outcomes.",
     "featuredTitle": "Featured work",
@@ -82,6 +85,7 @@
   },
   "services": {
     "title": "Services",
+    "metaTitle": "Web, AI Automation & Integration Services",
     "lead": "Three things I get hired for. Each one is backed by a system on this site that is running in production right now.",
     "deliverables": "What you get",
     "proof": "Built this before:",
@@ -90,9 +94,23 @@
     "pricing": "No price list. A number without a scope is either an underquote I regret or an overquote that loses the conversation. Tell me the problem and what it currently costs you, and you get a real figure within two working days.",
     "ctaTitle": "Describe the problem, not the solution",
     "ctaBody": "The most useful first message is what is going wrong and what it costs you. I will tell you honestly whether I am the right person for it.",
-    "bookCall": "Book an intro call",
     "startHere": "Send the details",
-    "whatsapp": "Message on WhatsApp"
+    "whatsapp": "Message on WhatsApp",
+    "faqTitle": "Common questions"
+  },
+  "expertise": {
+    "title": "Expertise",
+    "metaTitle": "Expertise: Laravel, WhatsApp Cloud API, AI & Payments",
+    "lead": "What I get hired for, by technology and by kind of problem. Every page lists the systems on this site that back it — nothing here is a logo I installed once.",
+    "count": "{count} systems",
+    "systems": "The systems behind it",
+    "related": "Related expertise",
+    "all": "All expertise",
+    "browse": "Browse by technology"
+  },
+  "booking": {
+    "cta": "Book a consultation",
+    "whatsappMessage": "Hi Osama, I'd like to book a consultation."
   },
   "metrics": {
     "title": "By the numbers",

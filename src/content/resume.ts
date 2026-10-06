@@ -1,4 +1,4 @@
-import { owner, SITE_URL, socials } from '@/content/site';
+import { owner, ownerName, SITE_URL, socials } from '@/content/site';
 import { parseOrThrow, resume as resumeSchema } from '@/lib/schemas';
 import type { ResumeInput } from '@/lib/schemas';
 
@@ -15,7 +15,7 @@ import type { ResumeInput } from '@/lib/schemas';
  */
 
 const raw: ResumeInput = {
-  name: { en: owner.fullName, ar: 'أسامة رائد جنينة' },
+  name: ownerName.full,
   headline: {
     en: 'Full-Stack Product Engineer · AI-Powered Systems',
     ar: 'مهندس منتجات Full-Stack · أنظمة مدعومة بالذكاء الاصطناعي',
@@ -177,18 +177,20 @@ const raw: ResumeInput = {
     },
   ],
 
+  /**
+   * Degree, field and years only. The institution is left out on purpose: its
+   * name states a place, and nothing on this site publishes a location.
+   */
   education: [
     {
       degree: { en: "Master's", ar: 'ماجستير' },
       field: { en: 'Computer Engineering', ar: 'هندسة الحاسوب' },
-      org: { en: 'Islamic University of Gaza', ar: 'الجامعة الإسلامية بغزة' },
       period: { en: '2023 — Present', ar: '2023 — حتى الآن' },
       ongoing: true,
     },
     {
       degree: { en: "Bachelor's", ar: 'بكالوريوس' },
       field: { en: 'Software Development', ar: 'تطوير البرمجيات' },
-      org: { en: 'Islamic University of Gaza', ar: 'الجامعة الإسلامية بغزة' },
       period: { en: '2019 — 2023', ar: '2019 — 2023' },
     },
   ],
@@ -209,4 +211,4 @@ const raw: ResumeInput = {
 export const resume = parseOrThrow(resumeSchema, raw, 'resume');
 
 /** Bumped whenever résumé content changes; shown on /cv and in the PDF. */
-export const RESUME_UPDATED = '2026-07-30';
+export const RESUME_UPDATED = '2026-10-06';

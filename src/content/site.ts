@@ -29,6 +29,23 @@ export const owner = {
   /** Display name — navbar, OG images. */
   shortName: 'Osama Jenana',
   /**
+   * The same name in Arabic script, which is the original. The two Latin forms
+   * above are how it is romanised on official documents, and that romanisation
+   * does not round-trip: read back into Arabic, "Jenana" comes out with an alef
+   * where the family name has a yeh. That is the misspelling assistants wrote
+   * when they were handed the English pages and those pages carried no Arabic
+   * form to copy — and `/` redirects to `/en`, so the English page is the only
+   * one a pasted link is ever read from.
+   *
+   * Neither script may therefore be derived from the other, by code or by a
+   * reader. Wherever the name is stated — the page title, the hero, the
+   * footer, the JSON-LD, /llms.txt — both forms are published side by side.
+   */
+  arabicName: {
+    full: 'أسامة رائد جنينة',
+    short: 'أسامة جنينة',
+  },
+  /**
    * The hero sets the name two lines deep at display size, so it needs the
    * split rather than a string it would have to guess a break point in. The
    * Arabic form is the short one — the full three-part name is on the CV.
@@ -63,6 +80,16 @@ export const owner = {
 } as const;
 
 /**
+ * The name in each script, keyed the way every other localized string is, so a
+ * component can ask for "this page's form" and "the other one" without knowing
+ * which is which.
+ */
+export const ownerName = {
+  full: { en: owner.fullName, ar: owner.arabicName.full },
+  short: { en: owner.shortName, ar: owner.arabicName.short },
+} as const satisfies Record<'full' | 'short', Localized>;
+
+/**
  * The CV.
  *
  * `file` is the designed PDF that ships in public/ — the document Osama hands
@@ -84,9 +111,13 @@ export const socials = {
 } as const;
 
 /**
- * Booking. While `calUsername` is null the services page routes enquiries to
- * the contact form and WhatsApp instead — a scheduling button that leads
- * nowhere is worse than no scheduling button.
+ * Booking — where "Book a consultation" leads.
+ *
+ * A Cal.com scheduling page once `calUsername` is set. Until then the button
+ * opens a WhatsApp chat with the request already written, because a booking
+ * control has to lead somewhere that works today and a link to a calendar that
+ * does not exist is worse than no button at all. lib/booking.ts makes the
+ * choice, so filling in the username here is the whole of the switch.
  */
 export const booking = {
   calUsername: null as string | null,

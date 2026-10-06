@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 
+import { Link } from '@/i18n/navigation';
 import { getStackFrequency } from '@/lib/projects';
 
 /**
@@ -14,6 +15,7 @@ import { getStackFrequency } from '@/lib/projects';
  */
 export async function StackStrip() {
   const t = await getTranslations('stack');
+  const expertise = await getTranslations('expertise');
   const stack = getStackFrequency().filter((entry) => entry.count > 1);
 
   const row = (hidden: boolean) => (
@@ -37,6 +39,17 @@ export async function StackStrip() {
           {t('title')}
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-muted">{t('lead')}</p>
+        {/* The strip counts the tools; the pages behind this link say what was
+            built with each one. It is the home page's one way in to them. */}
+        <Link
+          href="/expertise"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:text-brand-strong"
+        >
+          {expertise('browse')}
+          <span aria-hidden className="rtl:-scale-x-100">
+            →
+          </span>
+        </Link>
       </div>
 
       <div className="marquee-host marquee-mask mt-9 overflow-hidden">

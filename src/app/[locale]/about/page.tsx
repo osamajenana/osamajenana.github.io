@@ -160,7 +160,9 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                   <h3 className="font-medium text-ink">
                     {entry.degree[locale]} · {entry.field[locale]}
                   </h3>
-                  <p className="mt-0.5 text-sm text-ink-muted">{entry.org[locale]}</p>
+                  {entry.org && (
+                    <p className="mt-0.5 text-sm text-ink-muted">{entry.org[locale]}</p>
+                  )}
                 </div>
                 <span className="nums shrink-0 text-sm text-ink-subtle">
                   {entry.period[locale]}

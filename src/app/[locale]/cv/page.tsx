@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PrintButton } from '@/components/cv/PrintButton';
 import { CvDownloadButton } from '@/components/ui/Button';
 import { resume, RESUME_UPDATED } from '@/content/resume';
-import { owner } from '@/content/site';
+import { ownerName } from '@/content/site';
 import type { Locale } from '@/i18n/routing';
 import { formatPeriod, getBySlug } from '@/lib/projects';
 
@@ -17,7 +17,9 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: 'cv' });
 
   return {
-    title: `${t('title')} — ${owner.fullName}`,
+    // Absolute, with the full name in the page's own script. Through the
+    // layout's template this read "CV — Osama Raed Jenana — Osama Jenana".
+    title: { absolute: `${t('title')} — ${ownerName.full[locale]}` },
     description: resume.profile[locale].slice(0, 160),
     alternates: { canonical: `/${locale}/cv`, languages: { en: '/en/cv', ar: '/ar/cv' } },
   };
@@ -69,7 +71,10 @@ export default async function CvPage({ params }: { params: Promise<{ locale: Loc
                 {resume.email}
               </a>
             </li>
-            <li className="nums">{resume.whatsapp}</li>
+            {/* LTR, or the Arabic CV prints the number's groups in reverse. */}
+            <li dir="ltr" className="nums">
+              {resume.whatsapp}
+            </li>
             <li>
               <a href={resume.website} className="hover:text-ink">
                 {resume.website.replace('https://', '')}
@@ -159,8 +164,12 @@ export default async function CvPage({ params }: { params: Promise<{ locale: Loc
                   {entry.degree[locale]}
                   <span className="text-ink-subtle"> · </span>
                   <span className="text-ink-muted">{entry.field[locale]}</span>
-                  <span className="text-ink-subtle"> · </span>
-                  <span className="text-ink-muted">{entry.org[locale]}</span>
+                  {entry.org && (
+                    <>
+                      <span className="text-ink-subtle"> · </span>
+                      <span className="text-ink-muted">{entry.org[locale]}</span>
+                    </>
+                  )}
                 </h4>
                 <span className="nums text-sm text-ink-subtle">{entry.period[locale]}</span>
               </div>

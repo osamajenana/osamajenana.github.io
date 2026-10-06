@@ -18,7 +18,8 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: 'work' });
 
   return {
-    title: t('title'),
+    // Names the stack, which the one-word page heading cannot.
+    title: t('metaTitle'),
     description: t('lead'),
     alternates: { canonical: `/${locale}/work`, languages: { en: '/en/work', ar: '/ar/work' } },
   };

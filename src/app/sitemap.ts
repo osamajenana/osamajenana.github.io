@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 
 import { SITE_URL } from '@/content/site';
 import { routing } from '@/i18n/routing';
+import { getExpertise } from '@/lib/expertise';
 import { getPosts } from '@/lib/posts';
 import { getCaseStudySlugs } from '@/lib/projects';
 
@@ -30,6 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/work/archive', priority: 0.4, changeFrequency: 'yearly' },
     { path: '/about', priority: 0.7, changeFrequency: 'yearly' },
     { path: '/services', priority: 0.8, changeFrequency: 'yearly' },
+    { path: '/expertise', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/cv', priority: 0.7, changeFrequency: 'monthly' },
     { path: '/contact', priority: 0.6, changeFrequency: 'yearly' },
     // Listed only once there is something to read there.
@@ -42,6 +44,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...getCaseStudySlugs().map((slug) => ({
       path: `/work/${slug}`,
       priority: 0.9,
+      changeFrequency: 'monthly' as const,
+    })),
+    // Each one gains or loses evidence whenever the project registry changes.
+    ...getExpertise().map((topic) => ({
+      path: `/expertise/${topic.slug}`,
+      priority: 0.7,
       changeFrequency: 'monthly' as const,
     })),
     ...posts.map((entry) => ({

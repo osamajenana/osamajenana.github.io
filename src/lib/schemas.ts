@@ -194,7 +194,11 @@ export const resumeRole = z.object({
 export const resumeEducation = z.object({
   degree: localized,
   field: localized,
-  org: localized,
+  /**
+   * Optional, and currently unset. An institution's name can state where it is,
+   * and this site publishes no location — the same rule `resumeRole` follows.
+   */
+  org: localized.optional(),
   period: localized,
   ongoing: z.boolean().default(false),
 });

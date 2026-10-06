@@ -6,6 +6,10 @@ import { projects } from '@/content/projects';
 import { caseStudies } from '@/content/projects/case-studies';
 import { resume } from '@/content/resume';
 import { services } from '@/content/services';
+import { owner, ownerName } from '@/content/site';
+import ar from '@/i18n/messages/ar.json';
+import en from '@/i18n/messages/en.json';
+import { bookingHref, hasScheduler } from '@/lib/booking';
 import { getBySlug, getFeatured, getWorkGrid } from '@/lib/projects';
 
 /**
@@ -101,6 +105,71 @@ describe('résumé', () => {
     const location = `${resume.location.en} ${resume.location.ar}`;
     for (const country of countries) {
       expect(location).not.toContain(country);
+    }
+  });
+});
+
+describe('identity', () => {
+  /**
+   * The name exists in two scripts and neither can be derived from the other,
+   * so each form is written out by hand in content/site.ts. These hold the
+   * hand-written copies to one another.
+   */
+  it('spells the name one way per script, however it is split', () => {
+    for (const locale of ['en', 'ar'] as const) {
+      const { first, last } = owner.displayName[locale];
+
+      expect(ownerName.short[locale]).toBe(`${first} ${last}`);
+      expect(ownerName.full[locale].startsWith(`${first} `)).toBe(true);
+      expect(ownerName.full[locale].endsWith(` ${last}`)).toBe(true);
+    }
+  });
+
+  it('never carries one script in the other one’s slot', () => {
+    // A Latin string left in the Arabic slot is how an Arabic spelling goes
+    // missing from a page without anything failing.
+    for (const form of ['full', 'short'] as const) {
+      expect(ownerName[form].ar).toMatch(/^[؀-ۿ ]+$/);
+      expect(ownerName[form].en).toMatch(/^[A-Za-z ]+$/);
+    }
+  });
+
+  it('puts both spellings in the home page title of both locales', () => {
+    // The title is the first line of the page an assistant is handed, and the
+    // one field every reader of the page keeps.
+    for (const catalogue of [en, ar]) {
+      expect(catalogue.meta.titleDefault).toContain(ownerName.short.en);
+      expect(catalogue.meta.titleDefault).toContain(ownerName.short.ar);
+    }
+  });
+
+  it('gives the résumé the same name as the rest of the site', () => {
+    expect(resume.name).toEqual(ownerName.full);
+  });
+});
+
+describe('booking', () => {
+  it('leads to an absolute https destination', () => {
+    const message = 'مرحباً أسامة، أرغب في حجز استشارة.';
+    const url = new URL(bookingHref(message));
+
+    expect(url.protocol).toBe('https:');
+
+    if (hasScheduler) {
+      expect(url.hostname).toBe('cal.com');
+    } else {
+      // The fallback: a chat with the account's own digits, opened with the
+      // visitor's sentence intact — Arabic, comma and full stop included.
+      expect(url.hostname).toBe('wa.me');
+      expect(url.pathname).toBe(`/${owner.whatsapp.e164}`);
+      expect(url.searchParams.get('text')).toBe(message);
+    }
+  });
+
+  it('has a label and an opening message in both locales', () => {
+    for (const catalogue of [en, ar]) {
+      expect(catalogue.booking.cta.trim()).not.toBe('');
+      expect(catalogue.booking.whatsappMessage.trim()).not.toBe('');
     }
   });
 });

@@ -7,7 +7,9 @@ import { Metrics } from '@/components/sections/Metrics';
 import { Pillars } from '@/components/sections/Pillars';
 import { StackDiagram } from '@/components/sections/StackDiagram';
 import { StackStrip } from '@/components/sections/StackStrip';
+import { JsonLd } from '@/components/seo/JsonLd';
 import type { Locale } from '@/i18n/routing';
+import { graph, profilePageNode } from '@/lib/structured-data';
 
 export default async function HomePage({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
@@ -24,6 +26,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
       <Metrics />
       <StackStrip />
       <ContactCta />
+
+      {/* This page is about the person; the layout's graph says who that is. */}
+      <JsonLd data={graph(profilePageNode(locale))} />
     </main>
   );
 }

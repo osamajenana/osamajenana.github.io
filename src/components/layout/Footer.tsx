@@ -1,14 +1,15 @@
 import { getTranslations } from 'next-intl/server';
 
 import { Portrait } from '@/components/ui/Portrait';
-import { cv, owner, socials } from '@/content/site';
+import { cv, owner, ownerName, socials } from '@/content/site';
 import { Link } from '@/i18n/navigation';
-import type { Locale } from '@/i18n/routing';
+import { directionOf, type Locale } from '@/i18n/routing';
 
 export async function Footer({ locale }: { locale: Locale }) {
   const t = await getTranslations('footer');
   const nav = await getTranslations('nav');
   const hero = await getTranslations('hero');
+  const otherScript: Locale = locale === 'ar' ? 'en' : 'ar';
 
   const external = [
     { label: 'GitHub', href: socials.github },
@@ -16,7 +17,9 @@ export async function Footer({ locale }: { locale: Locale }) {
     ...(socials.linkedin ? [{ label: 'LinkedIn', href: socials.linkedin }] : []),
   ];
 
-  const internal = ['work', 'about', 'services', 'blog', 'contact'] as const;
+  // `expertise` is here and not in the header: the bar has no room for a sixth
+  // item, and this is the list a crawler reads on every route.
+  const internal = ['work', 'about', 'services', 'expertise', 'blog', 'contact'] as const;
 
   return (
     <footer className="border-t border-line bg-raised print:hidden" role="contentinfo">
@@ -29,7 +32,25 @@ export async function Footer({ locale }: { locale: Locale }) {
                 <Portrait variant="avatar" sizes="44px" alt="" />
               </span>
               <div>
-                <p className="text-sm font-semibold tracking-tight text-ink">{owner.fullName}</p>
+                {/*
+                  The full name in both scripts, the page's own first. The hero
+                  makes the same pairing but only on the home page; this is the
+                  one that is on every route, so a link to a case study or the
+                  CV still tells its reader how the name is written in Arabic.
+                  `dir` on the second form isolates it, which keeps the
+                  separator on the correct side of an opposite-direction run.
+                */}
+                <p className="text-sm font-semibold tracking-tight text-ink">
+                  {ownerName.full[locale]}
+                  <span className="font-normal text-ink-subtle"> · </span>
+                  <span
+                    lang={otherScript}
+                    dir={directionOf(otherScript)}
+                    className="font-arabic font-normal text-ink-muted"
+                  >
+                    {ownerName.full[otherScript]}
+                  </span>
+                </p>
                 <p className="text-xs text-ink-muted">{owner.role[locale]}</p>
               </div>
             </div>
@@ -101,10 +122,16 @@ export async function Footer({ locale }: { locale: Locale }) {
                   </a>
                 </li>
                 <li>
+                  {/*
+                    Isolated to LTR: left to inherit the page's direction, an
+                    RTL page lays the space-separated groups of a phone number
+                    out right to left and the number reads "3278 290 59 972+".
+                  */}
                   <a
                     href={`https://wa.me/${owner.whatsapp.e164}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    dir="ltr"
                     className="nums text-sm text-ink-muted transition-colors hover:text-ink"
                   >
                     {owner.whatsapp.display}

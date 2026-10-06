@@ -3,11 +3,12 @@ import { getTranslations } from 'next-intl/server';
 import { HeroFade } from '@/components/sections/HeroFade';
 import { HeroName } from '@/components/sections/HeroName';
 import { HeroPortrait } from '@/components/sections/HeroPortrait';
+import { BookingButton } from '@/components/ui/BookingButton';
 import { ButtonLink, CvDownloadButton } from '@/components/ui/Button';
 import { Portrait } from '@/components/ui/Portrait';
 import { StatusDot } from '@/components/ui/Tag';
-import { owner } from '@/content/site';
-import type { Locale } from '@/i18n/routing';
+import { owner, ownerName } from '@/content/site';
+import { directionOf, type Locale } from '@/i18n/routing';
 import { getArchive, getWorkGrid } from '@/lib/projects';
 
 /**
@@ -28,6 +29,7 @@ import { getArchive, getWorkGrid } from '@/lib/projects';
 export async function Hero({ locale }: { locale: Locale }) {
   const t = await getTranslations('hero');
   const name = owner.displayName[locale];
+  const otherScript: Locale = locale === 'ar' ? 'en' : 'ar';
 
   const systems = getWorkGrid().length + getArchive().length;
   const years = new Date().getFullYear() - owner.since;
@@ -81,7 +83,25 @@ export async function Hero({ locale }: { locale: Locale }) {
           {/* Latin splits per character; Arabic cannot — see HeroName. */}
           <HeroName first={name.first} last={name.last} perCharacter={locale !== 'ar'} />
 
-          <HeroFade delay={0.55} className="mt-7">
+          {/*
+            The name once more, in the other script, as real text directly under
+            the heading. Neither form can be recovered from the other (see
+            `owner.arabicName`), so a reader who is handed only this page, human
+            or crawler, is told rather than left to transliterate. The label is
+            for whoever is not looking at the layout: a screen reader, or a text
+            extractor.
+          */}
+          <HeroFade delay={0.5} className="mt-4">
+            <p className="text-xl text-ink-muted">
+              {/* One text node, so the served markup reads as one phrase. */}
+              <span className="sr-only">{`${t('otherScriptLabel')} `}</span>
+              <span lang={otherScript} dir={directionOf(otherScript)} className="font-arabic">
+                {ownerName.short[otherScript]}
+              </span>
+            </p>
+          </HeroFade>
+
+          <HeroFade delay={0.55} className="mt-6">
             <div className="flex items-center gap-4">
               <span aria-hidden className="h-px w-10 bg-line-strong" />
               <p className="text-base font-medium tracking-tight text-ink sm:text-lg">
@@ -97,10 +117,18 @@ export async function Hero({ locale }: { locale: Locale }) {
 
           <HeroFade delay={0.75} className="mt-8">
             <div className="flex flex-wrap items-center gap-3">
-              <ButtonLink href="/work" size="lg">
+              {/*
+                The narrower padding below `sm` is what lets the first two share
+                a row on a phone: at full padding they miss by two pixels and
+                the group stacks three deep.
+              */}
+              <ButtonLink href="/work" size="lg" className="max-sm:px-5">
                 {t('ctaWork')}
               </ButtonLink>
-              <CvDownloadButton size="lg">{t('ctaCv')}</CvDownloadButton>
+              <BookingButton size="lg" className="max-sm:px-5" />
+              <CvDownloadButton size="lg" className="max-sm:px-5">
+                {t('ctaCv')}
+              </CvDownloadButton>
             </div>
           </HeroFade>
 

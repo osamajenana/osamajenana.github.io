@@ -2,13 +2,15 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
+import { JsonLd } from '@/components/seo/JsonLd';
 import { Tag } from '@/components/ui/Tag';
-import { SITE_URL, owner } from '@/content/site';
+import { owner } from '@/content/site';
 import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
 import { getPostBody, getPostBySlug, getPostSlugs } from '@/lib/posts';
 import { getBySlug } from '@/lib/projects';
+import { breadcrumbNode, graph, postNode } from '@/lib/structured-data';
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) => getPostSlugs().map((slug) => ({ locale, slug })));
@@ -57,6 +59,7 @@ export default async function PostPage({
 
   const t = await getTranslations('blog');
   const work = await getTranslations('work');
+  const nav = await getTranslations('nav');
   const related = entry.relatedProject ? getBySlug(entry.relatedProject) : undefined;
 
   return (
@@ -125,22 +128,15 @@ export default async function PostPage({
         </div>
       </article>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            headline: entry.title[locale],
-            description: entry.description[locale],
-            datePublished: entry.publishedAt,
-            dateModified: entry.updatedAt ?? entry.publishedAt,
-            inLanguage: locale,
-            author: { '@type': 'Person', name: owner.fullName, url: SITE_URL },
-            mainEntityOfPage: `${SITE_URL}/${locale}/blog/${slug}`,
-            keywords: entry.tags.join(', '),
-          }),
-        }}
+      <JsonLd
+        data={graph(
+          postNode(locale, entry),
+          breadcrumbNode(locale, [
+            { name: nav('home'), path: '' },
+            { name: t('title'), path: '/blog' },
+            { name: entry.title[locale], path: `/blog/${entry.slug}` },
+          ]),
+        )}
       />
     </main>
   );

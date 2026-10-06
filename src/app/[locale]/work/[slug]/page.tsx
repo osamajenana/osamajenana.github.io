@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { ArchDiagram } from '@/components/diagrams/ArchDiagram';
 import { getDiagram } from '@/components/diagrams';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { ButtonAnchor } from '@/components/ui/Button';
 import { MetricList } from '@/components/ui/MetricList';
 import { Reveal } from '@/components/ui/Reveal';
@@ -12,6 +13,7 @@ import { pillars as pillarConfig } from '@/content/site';
 import { Link } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
+import { getExpertiseFor } from '@/lib/expertise';
 import {
   formatPeriod,
   getBySlug,
@@ -20,6 +22,7 @@ import {
   getFeatured,
 } from '@/lib/projects';
 import type { LocalizedProse, ProjectStatus } from '@/lib/schemas';
+import { breadcrumbNode, caseStudyNode, graph } from '@/lib/structured-data';
 
 const statusKey: Record<ProjectStatus, string> = {
   live: 'statusLive',
@@ -72,9 +75,12 @@ export default async function CaseStudyPage({
   const t = await getTranslations('work');
   const cs = await getTranslations('caseStudy');
   const common = await getTranslations('common');
+  const nav = await getTranslations('nav');
+  const expertise = await getTranslations('expertise');
 
   // The case study's own key wins; the project's is the fallback.
   const diagram = getDiagram(study.architecture.diagram ?? project.diagram);
+  const topics = getExpertiseFor(project);
 
   const featured = getFeatured().filter((p) => p.hasCaseStudy);
   const currentIndex = featured.findIndex((p) => p.slug === slug);
@@ -271,6 +277,35 @@ export default async function CaseStudyPage({
         </aside>
       </div>
 
+      {/*
+        ---- where this fits ----
+        The topics this system is evidence for. A case study is the page most
+        likely to be arrived at from outside, so it is also the page that should
+        lead on to the other work of the same kind.
+      */}
+      {topics.length > 0 && (
+        <nav aria-labelledby="expertise-heading" className="container-page pb-20">
+          <h2
+            id="expertise-heading"
+            className="mb-6 font-mono text-xs tracking-widest text-ink-subtle uppercase"
+          >
+            {expertise('related')}
+          </h2>
+          <ul className="flex flex-wrap gap-2">
+            {topics.map((topic) => (
+              <li key={topic.slug}>
+                <Link
+                  href={`/expertise/${topic.slug}`}
+                  className="inline-flex rounded-pill border border-line bg-surface px-4 py-2 text-sm text-ink shadow-sm transition-[border-color,background-color] hover:border-line-strong hover:bg-raised"
+                >
+                  {topic.title[locale]}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+
       {/* ---- next case study ---- */}
       {next && next.slug !== slug && (
         <section className="border-t border-line">
@@ -287,6 +322,17 @@ export default async function CaseStudyPage({
           </Link>
         </section>
       )}
+
+      <JsonLd
+        data={graph(
+          caseStudyNode(locale, project),
+          breadcrumbNode(locale, [
+            { name: nav('home'), path: '' },
+            { name: t('title'), path: '/work' },
+            { name: project.name[locale], path: `/work/${project.slug}` },
+          ]),
+        )}
+      />
     </main>
   );
 }

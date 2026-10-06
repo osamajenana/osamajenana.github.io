@@ -55,9 +55,16 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
                 <p className="font-mono text-xs tracking-widest text-ink-subtle uppercase">
                   {item.label}
                 </p>
+                {/*
+                  All three values are Latin-script identifiers, so they are
+                  isolated to LTR rather than left to inherit the page's
+                  direction — otherwise the Arabic page lays the phone number's
+                  groups out right to left and shows a different number.
+                */}
                 <a
                   href={item.href}
                   {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  dir="ltr"
                   className="mt-1 inline-block text-sm text-ink hover:text-brand"
                 >
                   {item.value}

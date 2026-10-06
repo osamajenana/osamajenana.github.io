@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
+import { useBookingLink } from '@/components/ui/BookingButton';
 import { LocaleSwitch } from '@/components/ui/LocaleSwitch';
 import { Portrait } from '@/components/ui/Portrait';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -20,6 +21,7 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations('nav');
+  const bookingLink = useBookingLink();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -131,6 +133,22 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
             {t('cv')}
           </a>
 
+          {/*
+            The one filled control in the bar, and the last thing in it: this is
+            the action the rest of the site is arguing for, so it is on every
+            page rather than only where a page happens to end. Hidden below `lg`
+            for the same reason the CV is — there is no room beside the nav —
+            and carried by the drawer and the hero there instead.
+          */}
+          <a
+            href={bookingLink.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden rounded-pill bg-brand px-3.5 py-1.5 text-sm font-medium text-on-brand shadow-sm transition-colors hover:bg-brand-strong lg:inline-flex"
+          >
+            {bookingLink.label}
+          </a>
+
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}
@@ -170,7 +188,9 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
         inert={!open}
         className={cn(
           'overflow-hidden border-line bg-canvas/95 backdrop-blur-xl transition-[max-height,opacity] duration-300 md:hidden',
-          open ? 'max-h-96 border-b opacity-100' : 'pointer-events-none max-h-0 opacity-0',
+          // The cap only has to clear the content; it is what max-height
+          // animates towards, so it is kept close to the real height.
+          open ? 'max-h-112 border-b opacity-100' : 'pointer-events-none max-h-0 opacity-0',
         )}
       >
         <nav className="container-page flex flex-col gap-1 py-4" aria-label={t('menu')}>
@@ -190,6 +210,16 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
               {t(item.key)}
             </Link>
           ))}
+
+          <a
+            href={bookingLink.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className="mt-2 rounded-card bg-brand px-3 py-2.5 text-base font-medium text-on-brand"
+          >
+            {bookingLink.label}
+          </a>
 
           <a
             href={cv.file}
