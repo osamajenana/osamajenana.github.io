@@ -119,7 +119,10 @@ cp ecosystem.config.cjs "$RELEASE/ecosystem.config.cjs"
 
 # --- verify before cutting over ---------------------------------------------
 log "Smoke test on a throwaway port"
-(cd "$RELEASE" && PORT=$SMOKE_PORT HOSTNAME=127.0.0.1 node server.js) &
+# `exec`, so that $! is the server itself. Without it $! is the subshell, and
+# killing that leaves the node process it started running: it kept this port,
+# and the next deploy stopped at preflight with "smoke-test port is in use".
+(cd "$RELEASE" && PORT=$SMOKE_PORT HOSTNAME=127.0.0.1 exec node server.js) &
 SMOKE_PID=$!
 # shellcheck disable=SC2064
 trap "kill $SMOKE_PID 2>/dev/null || true" EXIT
@@ -137,6 +140,8 @@ for path in /en /ar /en/work /cv/Osama-Jenana-CV.pdf /sitemap.xml; do
 done
 
 kill $SMOKE_PID 2>/dev/null || true
+# Reap it before going on, so the port is free by the time anything checks it.
+wait $SMOKE_PID 2>/dev/null || true
 trap - EXIT
 
 # --- cut over ----------------------------------------------------------------
