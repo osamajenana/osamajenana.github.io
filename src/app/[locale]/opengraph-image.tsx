@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-import { company, owner } from '@/content/site';
+import { owner } from '@/content/site';
 import { routing } from '@/i18n/routing';
 
 /**
@@ -15,7 +15,7 @@ import { routing } from '@/i18n/routing';
  * load; the layout is built to carry the design instead of the typeface.
  */
 
-export const alt = `${company.legalName.en} — ${owner.role.en}`;
+export const alt = `${owner.fullName} — ${owner.role.en}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -49,7 +49,7 @@ export default async function OgImage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ width: 12, height: 12, borderRadius: 999, backgroundColor: AI }} />
         <div style={{ fontSize: 24, color: MUTED }}>
-          WhatsApp Business Platform · AI systems · Product engineering
+          Available for remote roles and selected freelance work
         </div>
       </div>
 
@@ -64,14 +64,12 @@ export default async function OgImage() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ fontSize: 30, color: INK }}>{company.legalName.en}</div>
+          <div style={{ fontSize: 30, color: INK }}>{owner.fullName}</div>
           <div style={{ width: 5, height: 5, borderRadius: 999, backgroundColor: SUBTLE }} />
-          <div style={{ fontSize: 30, color: BRAND }}>{company.locality.en}</div>
+          <div style={{ fontSize: 30, color: BRAND }}>{owner.role.en}</div>
         </div>
-        {/* One interpolation, not three: Satori refuses a <div> with more than
-            one child unless it is given an explicit display. */}
         <div style={{ fontSize: 22, color: SUBTLE }}>
-          {`${owner.fullName} · ${owner.role.en} · 40+ shipped systems`}
+          Laravel · Vue · Next.js · Node · Flutter · AI · 40+ shipped systems
         </div>
       </div>
     </div>,

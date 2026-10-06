@@ -11,7 +11,6 @@ import { expect, test } from '@playwright/test';
 
 const ROUTES = [
   '',
-  '/platform',
   '/work',
   '/work/sila',
   '/work/whatsapp-commerce',
@@ -22,9 +21,6 @@ const ROUTES = [
   '/contact',
   '/blog',
   '/blog/stateful-whatsapp-flow-engine',
-  '/privacy',
-  '/terms',
-  '/data-deletion',
 ];
 
 const LOCALES = ['en', 'ar'] as const;
